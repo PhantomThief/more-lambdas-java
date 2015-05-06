@@ -22,10 +22,10 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import com.carrotsearch.hppc.IntArrayList;
-import com.carrotsearch.hppc.IntObjectOpenHashMap;
-import com.carrotsearch.hppc.IntOpenHashSet;
+import com.carrotsearch.hppc.IntHashSet;
+import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.LongArrayList;
-import com.carrotsearch.hppc.LongOpenHashSet;
+import com.carrotsearch.hppc.LongHashSet;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multimap;
 
@@ -55,17 +55,17 @@ public final class MoreCollectors {
                 } , CH_ID);
     }
 
-    public static Collector<Integer, ?, IntOpenHashSet> toIntSet() {
-        return new CollectorImpl<Integer, IntOpenHashSet, IntOpenHashSet>(IntOpenHashSet::new,
-                IntOpenHashSet::add, (left, right) -> {
+    public static Collector<Integer, ?, IntHashSet> toIntSet() {
+        return new CollectorImpl<Integer, IntHashSet, IntHashSet>(IntHashSet::new, IntHashSet::add,
+                (left, right) -> {
                     left.addAll(right);
                     return left;
                 } , CH_ID);
     }
 
-    public static Collector<Long, ?, LongOpenHashSet> toLongSet() {
-        return new CollectorImpl<Long, LongOpenHashSet, LongOpenHashSet>(LongOpenHashSet::new,
-                LongOpenHashSet::add, (left, right) -> {
+    public static Collector<Long, ?, LongHashSet> toLongSet() {
+        return new CollectorImpl<Long, LongHashSet, LongHashSet>(LongHashSet::new, LongHashSet::add,
+                (left, right) -> {
                     left.addAll(right);
                     return left;
                 } , CH_ID);
@@ -85,11 +85,11 @@ public final class MoreCollectors {
         } , CH_ID);
     }
 
-    public static <T, K, U> Collector<T, IntObjectOpenHashMap<U>, IntObjectOpenHashMap<U>> toIntMap(
+    public static <T, K, U> Collector<T, IntObjectHashMap<U>, IntObjectHashMap<U>> toIntMap(
             ToIntFunction<? super T> keyMapper, Function<? super T, ? extends U> valueMapper) {
-        BiConsumer<IntObjectOpenHashMap<U>, T> accumulator = (map, element) -> map
+        BiConsumer<IntObjectHashMap<U>, T> accumulator = (map, element) -> map
                 .put(keyMapper.applyAsInt(element), valueMapper.apply(element));
-        return new CollectorImpl<>(IntObjectOpenHashMap::new, accumulator, (m1, m2) -> {
+        return new CollectorImpl<>(IntObjectHashMap::new, accumulator, (m1, m2) -> {
             m1.putAll(m2);
             return m1;
         } , CH_ID);
@@ -225,7 +225,7 @@ public final class MoreCollectors {
         list.add(3);
         IntArrayList collect = list.stream().collect(MoreCollectors.toIntList());
         System.out.println(collect);
-        IntOpenHashSet collectSet = list.stream().collect(MoreCollectors.toIntSet());
+        IntHashSet collectSet = list.stream().collect(MoreCollectors.toIntSet());
         System.out.println(collectSet);
         LinkedList<Integer> linkedList = list.stream()
                 .collect(MoreCollectors.toList(LinkedList::new));

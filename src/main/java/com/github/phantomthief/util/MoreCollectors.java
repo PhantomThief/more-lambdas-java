@@ -36,6 +36,10 @@ import com.google.common.collect.Multimap;
  */
 public final class MoreCollectors {
 
+    private MoreCollectors() {
+        throw new UnsupportedOperationException();
+    }
+
     static final Set<Collector.Characteristics> CH_ID = Collections
             .unmodifiableSet(EnumSet.of(Collector.Characteristics.IDENTITY_FINISH));
 

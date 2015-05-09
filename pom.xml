@@ -1,8 +1,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.phantomthief</groupId>
-	<artifactId>more-collectors</artifactId>
-	<version>1.0.2-SNAPSHOT</version>
+	<artifactId>more-lambdas</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
 
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
@@ -10,10 +10,10 @@
 		<version>9</version>
 	</parent>
 
-	<name>More Collectors</name>
-	<description>Some useful collectors implements for Java 8.</description>
+	<name>More Lambdas</name>
+	<description>Some useful lambda implements for Java 8.</description>
 
-	<url>https://github.com/PhantomThief/more-collectors-java</url>
+	<url>https://github.com/PhantomThief/more-lambdas-java</url>
 
 	<developers>
 		<developer>
@@ -30,9 +30,9 @@
 	</licenses>
 
 	<scm>
-		<connection>scm:git:https://github.com/PhantomThief/more-collectors-java.git</connection>
-		<url>https://github.com/PhantomThief/more-collectors-java.git</url>
-		<developerConnection>scm:git:https://github.com/PhantomThief/more-collectors-java.git</developerConnection>
+		<connection>scm:git:https://github.com/PhantomThief/more-lambdas-java.git</connection>
+		<url>https://github.com/PhantomThief/more-lambdas-java.git</url>
+		<developerConnection>scm:git:https://github.com/PhantomThief/more-lambdas-java.git</developerConnection>
 	</scm>
 
 	<dependencies>

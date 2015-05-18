@@ -3,13 +3,8 @@
  */
 package com.github.phantomthief.util;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -40,7 +35,7 @@ public final class MoreCollectors {
         throw new UnsupportedOperationException();
     }
 
-    static final Set<Collector.Characteristics> CH_ID = Collections
+    public static final Set<Collector.Characteristics> CH_ID = Collections
             .unmodifiableSet(EnumSet.of(Collector.Characteristics.IDENTITY_FINISH));
 
     public static Collector<Integer, ?, IntArrayList> toIntList() {
@@ -73,20 +68,6 @@ public final class MoreCollectors {
                     left.addAll(right);
                     return left;
                 } , CH_ID);
-    }
-
-    public static <T, R extends List<T>> Collector<T, ?, R> toList(Supplier<R> supplier) {
-        return new CollectorImpl<>(supplier, List::add, (left, right) -> {
-            left.addAll(right);
-            return left;
-        } , CH_ID);
-    }
-
-    public static <T, R extends Set<T>> Collector<T, ?, R> toSet(Supplier<R> supplier) {
-        return new CollectorImpl<>(supplier, Set::add, (left, right) -> {
-            left.addAll(right);
-            return left;
-        } , CH_ID);
     }
 
     public static <T, K, U> Collector<T, IntObjectHashMap<U>, IntObjectHashMap<U>> toIntMap(
@@ -148,7 +129,7 @@ public final class MoreCollectors {
      * @param <T> the type of elements to be collected
      * @param <R> the type of the result
      */
-    static class CollectorImpl<T, A, R> implements Collector<T, A, R> {
+    public static class CollectorImpl<T, A, R> implements Collector<T, A, R> {
 
         private final Supplier<A> supplier;
 
@@ -160,7 +141,7 @@ public final class MoreCollectors {
 
         private final Set<Characteristics> characteristics;
 
-        CollectorImpl(Supplier<A> supplier, BiConsumer<A, T> accumulator,
+        public CollectorImpl(Supplier<A> supplier, BiConsumer<A, T> accumulator,
                 BinaryOperator<A> combiner, Function<A, R> finisher,
                 Set<Characteristics> characteristics) {
             this.supplier = supplier;
@@ -170,7 +151,7 @@ public final class MoreCollectors {
             this.characteristics = characteristics;
         }
 
-        CollectorImpl(Supplier<A> supplier, BiConsumer<A, T> accumulator,
+        public CollectorImpl(Supplier<A> supplier, BiConsumer<A, T> accumulator,
                 BinaryOperator<A> combiner, Set<Characteristics> characteristics) {
             this(supplier, accumulator, combiner, castingIdentity(), characteristics);
         }
@@ -220,22 +201,5 @@ public final class MoreCollectors {
             }
             return m1;
         };
-    }
-
-    public static final void main(String args[]) {
-        Collection<Integer> list = new ArrayList<>();
-        list.add(1);
-        list.add(2);
-        list.add(3);
-        IntArrayList collect = list.stream().collect(MoreCollectors.toIntList());
-        System.out.println(collect);
-        IntHashSet collectSet = list.stream().collect(MoreCollectors.toIntSet());
-        System.out.println(collectSet);
-        LinkedList<Integer> linkedList = list.stream()
-                .collect(MoreCollectors.toList(LinkedList::new));
-        System.out.println(linkedList);
-        LinkedHashMap<Integer, Integer> map = list.stream().collect(
-                MoreCollectors.toMap(Function.identity(), Function.identity(), LinkedHashMap::new));
-        System.out.println(map);
     }
 }

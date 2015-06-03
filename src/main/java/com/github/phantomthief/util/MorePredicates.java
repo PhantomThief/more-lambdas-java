@@ -35,16 +35,24 @@ public final class MorePredicates {
     }
 
     public static <T> Predicate<T> after(T element, boolean inclusive) {
+        return after(e -> Objects.equals(element, e), inclusive);
+    }
+
+    public static <T> Predicate<T> after(Predicate<T> predicate) {
+        return after(predicate, true);
+    }
+
+    public static <T> Predicate<T> after(Predicate<T> predicate, boolean inclusive) {
         return new Predicate<T>() {
 
-            private boolean started = element == null;
+            private boolean started;
 
             @Override
             public boolean test(T t) {
                 if (started) {
                     return true;
                 } else {
-                    if (Objects.equals(t, element)) {
+                    if (predicate.test(t)) {
                         started = true;
                         if (inclusive) {
                             return true;

@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.junit.Test;
 
@@ -91,6 +92,25 @@ public class MorePredicatesTest {
         Set<String> result = new HashSet<>();
         for (Bean bean : target) {
             assert(result.add(bean.getName()));
+        }
+    }
+
+    @Test
+    public void testAfter() {
+        List<Integer> source = IntStream.range(1, 100).boxed().collect(Collectors.toList());
+        List<Integer> target = source.stream() //
+                .filter(MorePredicates.after(10)) //
+                .collect(Collectors.toList());
+        System.out.println(target);
+        for (Integer i : target) {
+            assert(i >= 10);
+        }
+        target = source.stream() //
+                .filter(MorePredicates.after(10, false)) //
+                .collect(Collectors.toList());
+        System.out.println(target);
+        for (Integer i : target) {
+            assert(i > 10);
         }
     }
 }

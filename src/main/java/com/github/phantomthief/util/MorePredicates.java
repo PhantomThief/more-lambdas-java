@@ -30,11 +30,11 @@ public final class MorePredicates {
         };
     }
 
-    public static <T> Predicate<T> after(T element) {
-        return after(element, true);
+    public static <T> Predicate<T> afterElement(T element) {
+        return afterElement(element, true);
     }
 
-    public static <T> Predicate<T> after(T element, boolean inclusive) {
+    public static <T> Predicate<T> afterElement(T element, boolean inclusive) {
         return after(e -> Objects.equals(element, e), inclusive);
     }
 

@@ -5,6 +5,7 @@ package com.github.phantomthief.util;
 
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -64,4 +65,15 @@ public final class MorePredicates {
         };
     }
 
+    public static <T> Predicate<T> probability(double probability) {
+        return new Predicate<T>() {
+
+            private final Random random = new Random();
+
+            @Override
+            public boolean test(T t) {
+                return random.nextDouble() <= probability;
+            }
+        };
+    }
 }

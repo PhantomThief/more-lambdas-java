@@ -22,13 +22,13 @@ public class MoreIterables {
         throw new UnsupportedOperationException();
     }
 
-    public static Iterable<List<Long>> batchClosedRange(long start, long end, int batch) {
+    public static Iterable<List<Long>> batchClosedRange(long from, long to, int batch) {
         Preconditions.checkArgument(batch > 0);
-        if (start == end) {
+        if (from == to) {
             return Collections
-                    .singleton(LongStream.rangeClosed(start, end).boxed().collect(toList()));
+                    .singleton(LongStream.rangeClosed(from, to).boxed().collect(toList()));
         }
-        boolean reversed = start > end;
+        boolean reversed = from > to;
         return new Iterable<List<Long>>() {
 
             @Override
@@ -36,8 +36,8 @@ public class MoreIterables {
                 return new Iterator<List<Long>>() {
 
                     private List<Long> current = MoreStreams
-                            .longRangeClosed(start, reversed ? (Math.max(start - batch, end)
-                                    + 1) : Math.min(batch + start, end) - 1)
+                            .longRangeClosed(from, reversed ? (Math.max(from - batch, to)
+                                    + 1) : Math.min(batch + from, to) - 1)
                             .boxed().collect(toList());
 
                     @Override
@@ -66,15 +66,15 @@ public class MoreIterables {
                         } else {
                             newStart = current.get(current.size() - 1) + 1;
                         }
-                        if ((!reversed && newStart > end) || (reversed && end > newStart)) {
+                        if ((!reversed && newStart > to) || (reversed && to > newStart)) {
                             current = null;
                             return;
                         }
                         long newEnd;
                         if (reversed) {
-                            newEnd = Math.max(end, newStart - batch + 1);
+                            newEnd = Math.max(to, newStart - batch + 1);
                         } else {
-                            newEnd = Math.min(end, newStart + batch - 1);
+                            newEnd = Math.min(to, newStart + batch - 1);
                         }
                         current = MoreStreams.longRangeClosed(newStart, newEnd).boxed()
                                 .collect(toList());

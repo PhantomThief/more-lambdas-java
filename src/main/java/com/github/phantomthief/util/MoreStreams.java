@@ -15,19 +15,19 @@ public class MoreStreams {
         throw new UnsupportedOperationException();
     }
 
-    public static LongStream longRangeClosed(long min, long max) {
-        if (min <= max) {
-            return LongStream.rangeClosed(min, max);
+    public static LongStream longRangeClosed(long from, long to) {
+        if (from <= to) {
+            return LongStream.rangeClosed(from, to);
         } else {
-            return LongStream.rangeClosed(max, min).map(i -> max - i + min);
+            return LongStream.rangeClosed(to, from).map(i -> to - i + from);
         }
     }
 
-    public static IntStream intRangeClosed(int min, int max) {
-        if (min <= max) {
-            return IntStream.rangeClosed(min, max);
+    public static IntStream intRangeClosed(int from, int to) {
+        if (from <= to) {
+            return IntStream.rangeClosed(from, to);
         } else {
-            return IntStream.rangeClosed(max, min).map(i -> max - i + min);
+            return IntStream.rangeClosed(to, from).map(i -> to - i + from);
         }
     }
 }

@@ -9,7 +9,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.google.common.base.Preconditions;
 
@@ -20,6 +24,13 @@ public class MoreIterables {
 
     private MoreIterables() {
         throw new UnsupportedOperationException();
+    }
+
+    public static Stream<List<Long>> batchClosedRangeStream(long from, long to, int batch) {
+        return StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(batchClosedRange(from, to, batch).iterator(),
+                        (Spliterator.NONNULL | Spliterator.IMMUTABLE | Spliterator.ORDERED)),
+                false);
     }
 
     public static Iterable<List<Long>> batchClosedRange(long from, long to, int batch) {

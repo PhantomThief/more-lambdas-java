@@ -15,6 +15,7 @@ import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntHashSet;
@@ -43,7 +44,7 @@ public final class MoreCollectors {
                 IntArrayList::add, (left, right) -> {
                     left.addAll(right);
                     return left;
-                } , CH_ID);
+                }, CH_ID);
     }
 
     public static Collector<Long, ?, LongArrayList> toLongList() {
@@ -51,7 +52,7 @@ public final class MoreCollectors {
                 LongArrayList::add, (left, right) -> {
                     left.addAll(right);
                     return left;
-                } , CH_ID);
+                }, CH_ID);
     }
 
     public static Collector<Integer, ?, IntHashSet> toIntSet() {
@@ -59,7 +60,7 @@ public final class MoreCollectors {
                 (left, right) -> {
                     left.addAll(right);
                     return left;
-                } , CH_ID);
+                }, CH_ID);
     }
 
     public static Collector<Long, ?, LongHashSet> toLongSet() {
@@ -67,7 +68,7 @@ public final class MoreCollectors {
                 (left, right) -> {
                     left.addAll(right);
                     return left;
-                } , CH_ID);
+                }, CH_ID);
     }
 
     public static <T, K, U> Collector<T, IntObjectHashMap<U>, IntObjectHashMap<U>> toIntMap(
@@ -77,7 +78,7 @@ public final class MoreCollectors {
         return new CollectorImpl<>(IntObjectHashMap::new, accumulator, (m1, m2) -> {
             m1.putAll(m2);
             return m1;
-        } , CH_ID);
+        }, CH_ID);
     }
 
     public static <K, V> Collector<Entry<K, V>, ?, Map<K, V>> toMap() {
@@ -193,13 +194,27 @@ public final class MoreCollectors {
         };
     }
 
-    private static <K, V, M extends Map<K, V>> BinaryOperator<M> mapMerger(
-            BinaryOperator<V> mergeFunction) {
+    private static <K, V, M extends Map<K, V>> BinaryOperator<M>
+            mapMerger(BinaryOperator<V> mergeFunction) {
         return (m1, m2) -> {
             for (Map.Entry<K, V> e : m2.entrySet()) {
                 m1.merge(e.getKey(), e.getValue(), mergeFunction);
             }
             return m1;
         };
+    }
+
+    private static <T, A, R, S> Collector<T, ?, S> combine(Collector<T, A, R> collector,
+            Function<? super R, ? extends S> function) {
+        return Collector.of(collector.supplier(), collector.accumulator(), collector.combiner(),
+                collector.finisher().andThen(function));
+    }
+
+    public static <T> Collector<T, ?, Stream<T>> concat(Stream<? extends T> other) {
+        return combine(Collectors.toList(), list -> Stream.concat(list.stream(), other));
+    }
+
+    public static <T> Collector<T, ?, Stream<T>> concat(T element) {
+        return concat(Stream.of(element));
     }
 }

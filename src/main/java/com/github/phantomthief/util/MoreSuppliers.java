@@ -14,7 +14,11 @@ import java.util.function.Supplier;
 public class MoreSuppliers {
 
     public static <T> CloseableSupplier<T> lazy(Supplier<T> delegate) {
-        return new CloseableSupplier<T>(checkNotNull(delegate));
+        if (delegate instanceof CloseableSupplier) {
+            return (CloseableSupplier<T>) delegate;
+        } else {
+            return new CloseableSupplier<T>(checkNotNull(delegate));
+        }
     }
 
     public static class CloseableSupplier<T> implements Supplier<T>, Serializable {
@@ -42,8 +46,16 @@ public class MoreSuppliers {
             return this.value;
         }
 
-        public String toString() {
-            return "MoreSuppliers.lazy(" + this.delegate + ")";
+        public boolean isInitialized() {
+            return initialized;
+        }
+
+        public <X extends Throwable> void ifPresent(ThrowableConsumer<T, X> consumer) throws X {
+            synchronized (this) {
+                if (initialized && this.value != null) {
+                    consumer.accept(this.value);
+                }
+            }
         }
 
         public <X extends Throwable> void tryClose(ThrowableConsumer<T, X> close) throws X {
@@ -54,6 +66,10 @@ public class MoreSuppliers {
                     initialized = false;
                 }
             }
+        }
+
+        public String toString() {
+            return "MoreSuppliers.lazy(" + this.delegate + ")";
         }
     }
 }

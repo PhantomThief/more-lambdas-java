@@ -4,8 +4,12 @@
 package com.github.phantomthief.util;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
 
 import java.io.Serializable;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -54,6 +58,17 @@ public class MoreSuppliers {
             synchronized (this) {
                 if (initialized && this.value != null) {
                     consumer.accept(this.value);
+                }
+            }
+        }
+
+        public <U> Optional<U> map(Function<? super T, ? extends U> mapper) {
+            checkNotNull(mapper);
+            synchronized (this) {
+                if (initialized && this.value != null) {
+                    return ofNullable(mapper.apply(value));
+                } else {
+                    return empty();
                 }
             }
         }

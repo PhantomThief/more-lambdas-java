@@ -17,15 +17,15 @@ public class MoreFunctionsTest {
 
     @Test
     public void testTrying() throws Exception {
-        assert(MoreFunctions.catching(i -> function(i, Exception::new), 1) == null);
-        assert(MoreFunctions.catching(i -> function(i, IllegalArgumentException::new), 1) == null);
-        assert(MoreFunctions.catching(i -> function(i, null), 1).equals("1"));
+        assert (MoreFunctions.catching(i -> function(i, Exception::new), 1) == null);
+        assert (MoreFunctions.catching(i -> function(i, IllegalArgumentException::new), 1) == null);
+        assert (MoreFunctions.catching(i -> function(i, null), 1).equals("1"));
         try {
             MoreFunctions.catching(i -> function(i, IllegalArgumentException::new), 1,
                     IOException.class);
-            assert(false);
+            assert (false);
         } catch (Throwable e) {
-            assert(e.getClass() == IllegalArgumentException.class);
+            assert (e.getClass() == IllegalArgumentException.class);
         }
     }
 

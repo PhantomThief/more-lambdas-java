@@ -4,15 +4,19 @@
 package com.github.phantomthief.util;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Spliterator.IMMUTABLE;
+import static java.util.Spliterator.NONNULL;
+import static java.util.Spliterator.ORDERED;
+import static java.util.Spliterators.spliterator;
+import static java.util.Spliterators.spliteratorUnknownSize;
+import static java.util.stream.IntStream.rangeClosed;
+import static java.util.stream.StreamSupport.stream;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * @author w.vela
@@ -33,18 +37,15 @@ public class MoreStreams {
 
     public static IntStream intRangeClosed(int from, int to) {
         if (from <= to) {
-            return IntStream.rangeClosed(from, to);
+            return rangeClosed(from, to);
         } else {
-            return IntStream.rangeClosed(to, from).map(i -> to - i + from);
+            return rangeClosed(to, from).map(i -> to - i + from);
         }
     }
 
     public static <T> Stream<T> toStream(Iterator<T> iterator) {
         checkNotNull(iterator);
-        return StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(iterator,
-                        (Spliterator.NONNULL | Spliterator.IMMUTABLE | Spliterator.ORDERED)),
-                false);
+        return stream(spliteratorUnknownSize(iterator, (NONNULL | IMMUTABLE | ORDERED)), false);
     }
 
     public static <T> Stream<T> toStream(Iterable<T> iterable) {
@@ -53,14 +54,12 @@ public class MoreStreams {
             // failfast
             try {
                 Collection<T> collection = (Collection<T>) iterable;
-                return StreamSupport.stream(Spliterators.spliterator(collection, 0), false);
+                return stream(spliterator(collection, 0), false);
             } catch (Throwable e) {
                 // do nothing
             }
         }
-        return StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(iterable.iterator(),
-                        (Spliterator.NONNULL | Spliterator.IMMUTABLE | Spliterator.ORDERED)),
+        return stream(spliteratorUnknownSize(iterable.iterator(), (NONNULL | IMMUTABLE | ORDERED)),
                 false);
     }
 }

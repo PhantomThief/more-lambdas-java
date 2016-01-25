@@ -19,7 +19,7 @@ public final class MorePredicates {
         throw new UnsupportedOperationException();
     }
 
-    public static final <T> Predicate<T> distinctUsing(Function<T, Object> mapper) {
+    public static <T> Predicate<T> distinctUsing(Function<T, Object> mapper) {
         return new Predicate<T>() {
 
             private final Set<Object> set = new HashSet<>();

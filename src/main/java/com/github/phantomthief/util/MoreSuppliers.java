@@ -21,16 +21,16 @@ public class MoreSuppliers {
         if (delegate instanceof CloseableSupplier) {
             return (CloseableSupplier<T>) delegate;
         } else {
-            return new CloseableSupplier<T>(checkNotNull(delegate));
+            return new CloseableSupplier<>(checkNotNull(delegate));
         }
     }
 
     public static class CloseableSupplier<T> implements Supplier<T>, Serializable {
 
+        private static final long serialVersionUID = 0L;
         private final Supplier<T> delegate;
         private volatile transient boolean initialized;
         private transient T value;
-        private static final long serialVersionUID = 0L;
 
         private CloseableSupplier(Supplier<T> delegate) {
             this.delegate = delegate;

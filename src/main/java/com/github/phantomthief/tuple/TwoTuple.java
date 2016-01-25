@@ -12,17 +12,17 @@ public class TwoTuple<A, B> {
 
     public final B second;
 
+    public TwoTuple(final A a, final B b) {
+        first = a;
+        second = b;
+    }
+
     public A getFirst() {
         return first;
     }
 
     public B getSecond() {
         return second;
-    }
-
-    public TwoTuple(final A a, final B b) {
-        first = a;
-        second = b;
     }
 
     @Override

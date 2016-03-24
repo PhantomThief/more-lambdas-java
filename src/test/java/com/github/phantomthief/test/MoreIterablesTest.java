@@ -25,4 +25,18 @@ public class MoreIterablesTest {
         MoreIterables.batchClosedRange(2, 2, 4).forEach(System.out::println);
         System.out.println("======");
     }
+
+    @Test
+    public void testRange() throws Exception {
+        MoreIterables.batchClosedSimpleRange(2, 15, 4).forEach(System.out::println);
+        System.out.println("======");
+        MoreIterables.batchClosedSimpleRange(2, 13, 4).forEach(System.out::println);
+        System.out.println("======");
+        MoreIterables.batchClosedSimpleRange(15, 2, 4).forEach(System.out::println);
+        System.out.println("======");
+        MoreIterables.batchClosedSimpleRange(13, 2, 4).forEach(System.out::println);
+        System.out.println("======");
+        MoreIterables.batchClosedSimpleRange(2, 2, 4).forEach(System.out::println);
+        System.out.println("======");
+    }
 }

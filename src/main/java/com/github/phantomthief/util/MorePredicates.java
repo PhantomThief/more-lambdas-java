@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -17,6 +18,16 @@ public final class MorePredicates {
 
     private MorePredicates() {
         throw new UnsupportedOperationException();
+    }
+
+    public static <T> Predicate<T> ifNot(Predicate<T> predicate, Consumer<T> negateConsumer) {
+        return t -> {
+            boolean result = predicate.test(t);
+            if (!result) {
+                negateConsumer.accept(t);
+            }
+            return result;
+        };
     }
 
     public static <T> Predicate<T> distinctUsing(Function<T, Object> mapper) {

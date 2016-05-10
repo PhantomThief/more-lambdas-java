@@ -4,7 +4,9 @@
 package com.github.phantomthief.util;
 
 import static com.google.common.base.Throwables.propagate;
+import static java.util.Optional.ofNullable;
 
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 /**
@@ -12,8 +14,18 @@ import java.util.concurrent.Callable;
  */
 public class MoreFunctions {
 
+    public static <R> Optional<R> safe(Callable<R> callable) {
+        return safe(callable, (Class<Throwable>) null);
+    }
+
     public static <R> R catching(Callable<R> callable) {
         return catching(callable, (Class<Throwable>) null);
+    }
+
+    @SafeVarargs
+    public static <R> Optional<R> safe(Callable<R> callable,
+            Class<? extends Throwable>... catchThrowables) {
+        return ofNullable(catching(callable, catchThrowables));
     }
 
     @SafeVarargs
@@ -35,8 +47,18 @@ public class MoreFunctions {
         }
     }
 
+    public static <T, R> Optional<R> safe(FunctionWithThrowable<T, R, Throwable> function, T t) {
+        return safe(function, t, (Class<Throwable>) null);
+    }
+
     public static <T, R> R catching(FunctionWithThrowable<T, R, Throwable> function, T t) {
         return catching(function, t, (Class<Throwable>) null);
+    }
+
+    @SafeVarargs
+    public static <T, R> Optional<R> safe(FunctionWithThrowable<T, R, Throwable> function, T t,
+            Class<? extends Throwable>... catchThrowables) {
+        return ofNullable(catching(function, t, catchThrowables));
     }
 
     @SafeVarargs

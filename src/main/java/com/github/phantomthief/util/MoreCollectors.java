@@ -35,8 +35,8 @@ import com.google.common.collect.Multimap;
  */
 public final class MoreCollectors {
 
-    public static final Set<Collector.Characteristics> CH_ID = Collections.unmodifiableSet(EnumSet
-            .of(Collector.Characteristics.IDENTITY_FINISH));
+    public static final Set<Collector.Characteristics> CH_ID = Collections
+            .unmodifiableSet(EnumSet.of(Collector.Characteristics.IDENTITY_FINISH));
 
     private MoreCollectors() {
         throw new UnsupportedOperationException();
@@ -72,8 +72,8 @@ public final class MoreCollectors {
 
     public static <T, K, U> Collector<T, IntObjectHashMap<U>, IntObjectHashMap<U>> toIntMap(
             ToIntFunction<? super T> keyMapper, Function<? super T, ? extends U> valueMapper) {
-        BiConsumer<IntObjectHashMap<U>, T> accumulator = (map, element) -> map.put(
-                keyMapper.applyAsInt(element), valueMapper.apply(element));
+        BiConsumer<IntObjectHashMap<U>, T> accumulator = (map, element) -> map
+                .put(keyMapper.applyAsInt(element), valueMapper.apply(element));
         return new CollectorImpl<>(IntObjectHashMap::new, accumulator, (m1, m2) -> {
             m1.putAll(m2);
             return m1;
@@ -86,8 +86,8 @@ public final class MoreCollectors {
 
     public static <T, K> Collector<T, ?, HashMultiset<K>> toMultiset(
             Function<? super T, ? extends K> elementMapper, ToIntFunction<? super T> countMapper) {
-        BiConsumer<HashMultiset<K>, T> accumulator = (set, element) -> set.add(
-                elementMapper.apply(element), countMapper.applyAsInt(element));
+        BiConsumer<HashMultiset<K>, T> accumulator = (set, element) -> set
+                .add(elementMapper.apply(element), countMapper.applyAsInt(element));
         BinaryOperator<HashMultiset<K>> finisher = (m1, m2) -> {
             m1.addAll(m2);
             return m1;
@@ -98,8 +98,8 @@ public final class MoreCollectors {
     public static <T, K, U, M extends Multimap<K, U>> Collector<T, ?, M> toMultimap(
             Function<? super T, ? extends K> keyMapper,
             Function<? super T, ? extends U> valueMapper, Supplier<M> supplier) {
-        BiConsumer<M, T> accumulator = (multimap, element) -> multimap.put(
-                keyMapper.apply(element), valueMapper.apply(element));
+        BiConsumer<M, T> accumulator = (multimap, element) -> multimap.put(keyMapper.apply(element),
+                valueMapper.apply(element));
         BinaryOperator<M> finisher = (m1, m2) -> {
             m1.putAll(m2);
             return m1;
@@ -133,8 +133,8 @@ public final class MoreCollectors {
         };
     }
 
-    private static <K, V, M extends Map<K, V>> BinaryOperator<M> mapMerger(
-            BinaryOperator<V> mergeFunction) {
+    private static <K, V, M extends Map<K, V>> BinaryOperator<M>
+            mapMerger(BinaryOperator<V> mergeFunction) {
         return (m1, m2) -> {
             for (Map.Entry<K, V> e : m2.entrySet()) {
                 m1.merge(e.getKey(), e.getValue(), mergeFunction);

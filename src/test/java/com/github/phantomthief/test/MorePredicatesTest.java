@@ -21,8 +21,8 @@ public class MorePredicatesTest {
 
     @Test
     public void testDistinctUsing() {
-        List<Bean> source = Arrays.asList(new Bean("name1", "address1"), new Bean("name1",
-                "address2"), new Bean("name3", "address2"));
+        List<Bean> source = Arrays.asList(new Bean("name1", "address1"),
+                new Bean("name1", "address2"), new Bean("name3", "address2"));
         List<Bean> target = source.stream() //
                 .filter(MorePredicates.distinctUsing(Bean::getName)) //
                 .collect(Collectors.toList());

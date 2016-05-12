@@ -32,9 +32,8 @@ public class MoreIterables {
     }
 
     public static Stream<List<Long>> batchClosedRangeStream(long from, long to, int batch) {
-        return stream(
-                spliteratorUnknownSize(batchClosedRange(from, to, batch).iterator(), (NONNULL
-                        | IMMUTABLE | ORDERED)), false);
+        return stream(spliteratorUnknownSize(batchClosedRange(from, to, batch).iterator(),
+                (NONNULL | IMMUTABLE | ORDERED)), false);
     }
 
     public static Iterable<List<Long>> batchClosedRange(long from, long to, int batch) {
@@ -92,9 +91,8 @@ public class MoreIterables {
     }
 
     public static Stream<Range<Long>> batchClosedSimpleRangeStream(long from, long to, int batch) {
-        return stream(
-                spliteratorUnknownSize(batchClosedSimpleRange(from, to, batch).iterator(), (NONNULL
-                        | IMMUTABLE | ORDERED)), false);
+        return stream(spliteratorUnknownSize(batchClosedSimpleRange(from, to, batch).iterator(),
+                (NONNULL | IMMUTABLE | ORDERED)), false);
     }
 
     public static Iterable<Range<Long>> batchClosedSimpleRange(long from, long to, int batch) {
@@ -145,8 +143,8 @@ public class MoreIterables {
                 } else {
                     newEnd = min(to, newStart + batch - 1);
                 }
-                current = reversed ? Range.closed(newEnd, newStart) : Range
-                        .closed(newStart, newEnd);
+                current = reversed ? Range.closed(newEnd, newStart) : Range.closed(newStart,
+                        newEnd);
             }
         };
     }

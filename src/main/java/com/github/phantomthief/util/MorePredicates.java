@@ -20,7 +20,8 @@ public final class MorePredicates {
         throw new UnsupportedOperationException();
     }
 
-    public static <T> Predicate<T> applyOtherwise(Predicate<T> predicate, Consumer<T> negateConsumer) {
+    public static <T> Predicate<T> applyOtherwise(Predicate<T> predicate,
+            Consumer<T> negateConsumer) {
         return t -> {
             boolean result = predicate.test(t);
             if (!result) {

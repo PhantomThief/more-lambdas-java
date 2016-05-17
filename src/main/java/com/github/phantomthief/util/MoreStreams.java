@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.github.phantomthief.util;
 
@@ -14,9 +14,13 @@ import static java.util.stream.StreamSupport.stream;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import com.google.common.collect.Iterators;
 
 /**
  * @author w.vela
@@ -61,5 +65,10 @@ public class MoreStreams {
         }
         return stream(spliteratorUnknownSize(iterable.iterator(), (NONNULL | IMMUTABLE | ORDERED)),
                 false);
+    }
+
+    public static <T> Stream<List<T>> partition(Stream<T> stream, int size) {
+        Iterable<List<T>> iterable = () -> Iterators.partition(stream.iterator(), size);
+        return StreamSupport.stream(iterable.spliterator(), false);
     }
 }

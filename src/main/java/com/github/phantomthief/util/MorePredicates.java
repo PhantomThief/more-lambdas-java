@@ -84,7 +84,7 @@ public final class MorePredicates {
 
             @Override
             public boolean test(T t) {
-                return random.nextDouble() <= probability;
+                return random.nextDouble() < probability;
             }
         };
     }

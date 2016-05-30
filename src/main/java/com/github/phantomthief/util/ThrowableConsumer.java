@@ -15,7 +15,7 @@ public interface ThrowableConsumer<T, X extends Throwable> {
 
     default ThrowableConsumer<T, X> andThen(ThrowableConsumer<? super T, X> after) {
         requireNonNull(after);
-        return (T t) -> {
+        return t -> {
             accept(t);
             after.accept(t);
         };

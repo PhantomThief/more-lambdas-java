@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.phantomthief</groupId>
     <artifactId>more-lambdas</artifactId>
-    <version>0.1.7-SNAPSHOT</version>
+    <version>0.1.8-SNAPSHOT</version>
 
     <parent>
         <groupId>org.sonatype.oss</groupId>
@@ -37,6 +37,11 @@
     </scm>
 
     <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.21</version>
+        </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>

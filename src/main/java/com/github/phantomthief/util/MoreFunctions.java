@@ -3,85 +3,55 @@
  */
 package com.github.phantomthief.util;
 
-import static com.google.common.base.Throwables.propagate;
-import static java.util.Optional.ofNullable;
+import static org.slf4j.LoggerFactory.getLogger;
 
-import java.util.Optional;
 import java.util.concurrent.Callable;
+
+import org.slf4j.Logger;
+
+import com.google.common.base.Throwables;
 
 /**
  * @author w.vela
  */
 public class MoreFunctions {
 
-    public static <R> Optional<R> safe(Callable<R> callable) {
-        return safe(callable, (Class<Throwable>) null);
-    }
+    private static final Logger logger = getLogger(MoreFunctions.class);
 
     public static <R> R catching(Callable<R> callable) {
-        return catching(callable, (Class<Throwable>) null);
+        return catching(callable, e -> logger.error("", e));
     }
 
-    @SafeVarargs
-    public static <R> Optional<R> safe(Callable<R> callable,
-            Class<? extends Throwable>... catchThrowables) {
-        return ofNullable(catching(callable, catchThrowables));
+    public static <R> R throwing(Callable<R> callable) {
+        return catching(callable, Throwables::propagate);
     }
 
-    @SafeVarargs
-    public static <R> R catching(Callable<R> callable,
-            Class<? extends Throwable>... catchThrowables) {
+    public static <R, X extends Throwable> R catching(Callable<R> callable,
+            ThrowableConsumer<Throwable, X> exceptionHandler) throws X {
         try {
             return callable.call();
         } catch (Throwable e) {
-            if (catchThrowables != null) {
-                for (Class<? extends Throwable> throwable : catchThrowables) {
-                    if (throwable != null) {
-                        if (!throwable.isInstance(e)) {
-                            throw propagate(e);
-                        }
-                    }
-                }
-            }
+            exceptionHandler.accept(e);
             return null;
         }
     }
 
-    public static <T, R> Optional<R> safe(FunctionWithThrowable<T, R, Throwable> function, T t) {
-        return safe(function, t, (Class<Throwable>) null);
+    public static <T, R> R catching(ThrowableFunction<T, R, Exception> function, T t) {
+        return catching(function, t, e -> logger.error("", e));
     }
 
-    public static <T, R> R catching(FunctionWithThrowable<T, R, Throwable> function, T t) {
-        return catching(function, t, (Class<Throwable>) null);
+    public static <T, R> R throwing(ThrowableFunction<T, R, Exception> function, T t) {
+        return catching(function, t, Throwables::propagate);
     }
 
-    @SafeVarargs
-    public static <T, R> Optional<R> safe(FunctionWithThrowable<T, R, Throwable> function, T t,
-            Class<? extends Throwable>... catchThrowables) {
-        return ofNullable(catching(function, t, catchThrowables));
-    }
-
-    @SafeVarargs
-    public static <T, R> R catching(FunctionWithThrowable<T, R, Throwable> function, T t,
-            Class<? extends Throwable>... catchThrowables) {
+    public static <T, R, X extends Throwable> R catching(
+            ThrowableFunction<T, R, Exception> function, T t,
+            ThrowableConsumer<Throwable, X> exceptionHandler) throws X {
         try {
             return function.apply(t);
         } catch (Throwable e) {
-            if (catchThrowables != null) {
-                for (Class<? extends Throwable> throwable : catchThrowables) {
-                    if (throwable != null) {
-                        if (!throwable.isInstance(e)) {
-                            throw propagate(e);
-                        }
-                    }
-                }
-            }
+            exceptionHandler.accept(e);
             return null;
         }
-    }
-
-    public interface FunctionWithThrowable<T, R, X extends Throwable> {
-
-        R apply(T t) throws X;
     }
 }

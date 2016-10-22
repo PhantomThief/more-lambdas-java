@@ -25,6 +25,19 @@ public class MoreSuppliers {
         }
     }
 
+    public static <T> Supplier<T> asyncLazy(Supplier<T> delegate, Supplier<T> pendingSupplier,
+            String threadName) {
+        return new AsyncSupplier<>(delegate, pendingSupplier, threadName);
+    }
+
+    public static <T> Supplier<T> asyncLazy(Supplier<T> delegate, String threadName) {
+        return asyncLazy(delegate, () -> null, threadName);
+    }
+
+    public static <T> Supplier<T> asyncLazy(Supplier<T> delegate) {
+        return asyncLazy(delegate, null);
+    }
+
     public static class CloseableSupplier<T> implements Supplier<T>, Serializable {
 
         private static final long serialVersionUID = 0L;
@@ -85,6 +98,64 @@ public class MoreSuppliers {
 
         public String toString() {
             return "MoreSuppliers.lazy(" + this.delegate + ")";
+        }
+    }
+
+    public static final class AsyncSupplier<T> implements Supplier<T> {
+
+        private final String initThreadName;
+        private final Supplier<T> innerSupplier;
+        private final Supplier<T> pendingSupplier;
+
+        private volatile T value;
+
+        private volatile boolean inited;
+        private volatile boolean initing;
+
+        AsyncSupplier(Supplier<T> innerSupplier, Supplier<T> pendingSupplier,
+                String initThreadName) {
+            this.initThreadName = initThreadName;
+            this.innerSupplier = checkNotNull(innerSupplier);
+            this.pendingSupplier = checkNotNull(pendingSupplier);
+        }
+
+        @Override
+        public T get() {
+            if (inited) {
+                return value;
+            }
+            if (initing) {
+                return pendingSupplier.get();
+            }
+            synchronized (this) {
+                if (inited) {
+                    return value;
+                }
+                if (initing) {
+                    return pendingSupplier.get();
+                }
+                initing = true;
+                Runnable initWithTry = () -> {
+                    try {
+                        value = innerSupplier.get();
+                        inited = true;
+                        initing = false;
+                    } catch (Throwable e) {
+                        initing = false;
+                        throw e;
+                    }
+                };
+                if (initThreadName == null) {
+                    new Thread(initWithTry).start();
+                } else {
+                    new Thread(initWithTry, initThreadName).start();
+                }
+            }
+            if (inited) {
+                return value;
+            } else {
+                return pendingSupplier.get();
+            }
         }
     }
 }

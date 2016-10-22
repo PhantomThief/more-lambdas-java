@@ -142,6 +142,7 @@ public class MoreSuppliers {
                         initing = false;
                     } catch (Throwable e) {
                         initing = false;
+                        throw e;
                     }
                 };
                 if (initThreadName == null) {

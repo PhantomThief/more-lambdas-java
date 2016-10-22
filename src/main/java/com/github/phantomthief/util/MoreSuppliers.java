@@ -135,18 +135,19 @@ public class MoreSuppliers {
                     return pendingSupplier.get();
                 }
                 initing = true;
+                Runnable initWithTry = () -> {
+                    try {
+                        value = innerSupplier.get();
+                        inited = true;
+                        initing = false;
+                    } catch (Throwable e) {
+                        initing = false;
+                    }
+                };
                 if (initThreadName == null) {
-                    new Thread(() -> {
-                        value = innerSupplier.get();
-                        inited = true;
-                        initing = false;
-                    }).start();
+                    new Thread(initWithTry).start();
                 } else {
-                    new Thread(() -> {
-                        value = innerSupplier.get();
-                        inited = true;
-                        initing = false;
-                    }, initThreadName).start();
+                    new Thread(initWithTry, initThreadName).start();
                 }
             }
             if (inited) {

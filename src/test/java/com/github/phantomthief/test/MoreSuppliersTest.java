@@ -89,4 +89,29 @@ public class MoreSuppliersTest {
             }
         }
     }
+
+    @Test
+    public void asyncTestFailed() {
+        int[] initTimes = { 0 };
+        Supplier<String> supplier = asyncLazy(() -> {
+            if (initTimes[0]++ <= 0) {
+                System.out.println("failed");
+                throw new RuntimeException("fail first time.");
+            }
+            System.out.println("initing...");
+            sleepUninterruptibly(5, SECONDS);
+            System.out.println("inited.");
+            return "test";
+        });
+        for (int i = 0; i < 10; i++) {
+            String x = supplier.get();
+            System.out.println(x);
+            sleepUninterruptibly(1, SECONDS);
+            if (i > 6) {
+                assertEquals(x, "test");
+            } else if (i < 3) {
+                assertNull(x);
+            }
+        }
+    }
 }

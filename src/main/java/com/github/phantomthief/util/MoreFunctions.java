@@ -3,8 +3,10 @@
  */
 package com.github.phantomthief.util;
 
+import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
@@ -17,6 +19,10 @@ import com.google.common.base.Throwables;
 public class MoreFunctions {
 
     private static final Logger logger = getLogger(MoreFunctions.class);
+
+    public static <R> Optional<R> catchingOptional(Callable<R> callable) {
+        return ofNullable(catching(callable));
+    }
 
     public static <R> R catching(Callable<R> callable) {
         return catching(callable, e -> logger.error("", e));

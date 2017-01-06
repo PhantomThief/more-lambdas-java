@@ -84,6 +84,10 @@ public final class MoreCollectors {
         return Collectors.toMap(Entry::getKey, Entry::getValue);
     }
 
+    /**
+     * 等待guava 21.0 GA后，迁移到相应的方法上
+     */
+    @Deprecated
     public static <T, K> Collector<T, ?, HashMultiset<K>> toMultiset(
             Function<? super T, ? extends K> elementMapper, ToIntFunction<? super T> countMapper) {
         BiConsumer<HashMultiset<K>, T> accumulator = (set, element) -> set
@@ -95,6 +99,10 @@ public final class MoreCollectors {
         return new CollectorImpl<>(HashMultiset::create, accumulator, finisher, CH_ID);
     }
 
+    /**
+     * 等待guava 21.0 GA后，迁移到相应的方法上
+     */
+    @Deprecated
     public static <T, K, U, M extends Multimap<K, U>> Collector<T, ?, M> toMultimap(
             Function<? super T, ? extends K> keyMapper,
             Function<? super T, ? extends U> valueMapper, Supplier<M> supplier) {

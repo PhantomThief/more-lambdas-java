@@ -97,7 +97,11 @@ public class MoreSuppliers {
         }
 
         public String toString() {
-            return "MoreSuppliers.lazy(" + this.delegate + ")";
+            if (initialized) {
+                return "MoreSuppliers.lazy(" + get() + ")";
+            } else {
+                return "MoreSuppliers.lazy(" + this.delegate + ")";
+            }
         }
     }
 

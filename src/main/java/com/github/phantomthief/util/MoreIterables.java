@@ -3,16 +3,13 @@
  */
 package com.github.phantomthief.util;
 
+import static com.github.phantomthief.util.MoreStreams.toStream;
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Iterables.partition;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.Collections.singleton;
-import static java.util.Spliterator.IMMUTABLE;
-import static java.util.Spliterator.NONNULL;
-import static java.util.Spliterator.ORDERED;
-import static java.util.Spliterators.spliteratorUnknownSize;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.StreamSupport.stream;
+import static java.util.Collections.singletonList;
 
 import java.util.Iterator;
 import java.util.List;
@@ -25,74 +22,32 @@ import com.google.common.collect.Range;
 /**
  * @author w.vela
  */
-public class MoreIterables {
+public final class MoreIterables {
 
     private MoreIterables() {
         throw new UnsupportedOperationException();
     }
 
     public static Stream<List<Long>> batchClosedRangeStream(long from, long to, int batch) {
-        return stream(spliteratorUnknownSize(batchClosedRange(from, to, batch).iterator(),
-                (NONNULL | IMMUTABLE | ORDERED)), false);
+        return toStream(batchClosedRange(from, to, batch));
     }
 
     public static Iterable<List<Long>> batchClosedRange(long from, long to, int batch) {
         checkArgument(batch > 0);
         if (from == to) {
-            return singleton(LongStream.rangeClosed(from, to).boxed().collect(toList()));
+            return singleton(singletonList(from));
         }
-        boolean reversed = from > to;
-        return () -> new Iterator<List<Long>>() {
-
-            private List<Long> current = MoreStreams
-                    .longRangeClosed(from,
-                            reversed ? (max(from - batch, to) + 1) : min(batch + from, to) - 1)
-                    .boxed().collect(toList());
-
-            @Override
-            public boolean hasNext() {
-                return current != null && !current.isEmpty();
-            }
-
-            @Override
-            public List<Long> next() {
-                if (current == null) {
-                    throw new NoSuchElementException();
-                }
-                List<Long> result = current;
-                calcNext();
-                return result;
-            }
-
-            private void calcNext() {
-                if (current.isEmpty()) {
-                    current = null;
-                    return;
-                }
-                long newStart;
-                if (reversed) {
-                    newStart = current.get(current.size() - 1) - 1;
-                } else {
-                    newStart = current.get(current.size() - 1) + 1;
-                }
-                if ((!reversed && newStart > to) || (reversed && to > newStart)) {
-                    current = null;
-                    return;
-                }
-                long newEnd;
-                if (reversed) {
-                    newEnd = max(to, newStart - batch + 1);
-                } else {
-                    newEnd = min(to, newStart + batch - 1);
-                }
-                current = MoreStreams.longRangeClosed(newStart, newEnd).boxed().collect(toList());
-            }
-        };
+        LongStream longStream;
+        if (from > to) {
+            longStream = LongStream.rangeClosed(to, from).map(i -> from + to - i);
+        } else {
+            longStream = LongStream.rangeClosed(from, to);
+        }
+        return partition(longStream.boxed()::iterator, batch);
     }
 
     public static Stream<Range<Long>> batchClosedSimpleRangeStream(long from, long to, int batch) {
-        return stream(spliteratorUnknownSize(batchClosedSimpleRange(from, to, batch).iterator(),
-                (NONNULL | IMMUTABLE | ORDERED)), false);
+        return toStream(batchClosedSimpleRange(from, to, batch));
     }
 
     public static Iterable<Range<Long>> batchClosedSimpleRange(long from, long to, int batch) {

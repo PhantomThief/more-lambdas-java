@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 /**
  * @author w.vela
  */
-public class MoreSuppliers {
+public final class MoreSuppliers {
 
     public static <T> CloseableSupplier<T> lazy(Supplier<T> delegate) {
         if (delegate instanceof CloseableSupplier) {

@@ -16,7 +16,7 @@ import com.google.common.base.Throwables;
 /**
  * @author w.vela
  */
-public class MoreFunctions {
+public final class MoreFunctions {
 
     private static final Logger logger = getLogger(MoreFunctions.class);
 

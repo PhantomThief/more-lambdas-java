@@ -5,10 +5,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.function.Supplier;
 
 /**
- * @author w.vela <vela@kuaishou.com>
- * Created on 13/12/2016.
+ * @author w.vela
  */
-public class MoreLocks {
+public final class MoreLocks {
 
     private MoreLocks() {
         throw new UnsupportedOperationException();

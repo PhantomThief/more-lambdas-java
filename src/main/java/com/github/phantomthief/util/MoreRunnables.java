@@ -4,9 +4,8 @@ import java.util.function.Supplier;
 
 /**
  * @author w.vela
- * Created on 16/3/14.
  */
-public class MoreRunnables {
+public final class MoreRunnables {
 
     public static Runnable runOnce(Runnable runnable) {
         return new Runnable() {

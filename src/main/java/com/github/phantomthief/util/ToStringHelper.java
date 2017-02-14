@@ -6,7 +6,6 @@ import java.util.function.Function;
 
 /**
  * @author w.vela
- * Created on 16/5/7.
  */
 public class ToStringHelper {
 

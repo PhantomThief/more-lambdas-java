@@ -29,9 +29,7 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multimap;
 
 /**
- * @author w.vela <vela@longbeach-inc.com>
- *
- * @date 2014年6月18日 下午5:30:34
+ * @author w.vela
  */
 public final class MoreCollectors {
 

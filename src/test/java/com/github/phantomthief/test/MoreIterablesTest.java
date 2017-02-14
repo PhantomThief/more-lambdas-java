@@ -24,6 +24,8 @@ public class MoreIterablesTest {
         System.out.println("======");
         MoreIterables.batchClosedRange(2, 2, 4).forEach(System.out::println);
         System.out.println("======");
+        MoreIterables.batchClosedRange(13, -2, 4).forEach(System.out::println);
+        System.out.println("======");
     }
 
     @Test

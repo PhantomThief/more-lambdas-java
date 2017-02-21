@@ -86,6 +86,10 @@ public final class MoreSuppliers {
             }
         }
 
+        public void tryClose() {
+            tryClose(i -> {});
+        }
+
         public <X extends Throwable> void tryClose(ThrowableConsumer<T, X> close) throws X {
             synchronized (this) {
                 if (initialized && this.value != null) {

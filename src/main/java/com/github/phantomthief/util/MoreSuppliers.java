@@ -92,7 +92,7 @@ public final class MoreSuppliers {
 
         public <X extends Throwable> void tryClose(ThrowableConsumer<T, X> close) throws X {
             synchronized (this) {
-                if (initialized && this.value != null) {
+                if (initialized) {
                     close.accept(value);
                     this.value = null;
                     initialized = false;

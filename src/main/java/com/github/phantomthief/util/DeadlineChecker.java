@@ -50,7 +50,7 @@ public class DeadlineChecker implements AutoCloseable {
 
     private static final Logger logger = getLogger(DeadlineChecker.class);
 
-    final Map<Thread, List<DeadlineInfo>> RUNNING = new ConcurrentHashMap<>();
+    private final Map<Thread, List<DeadlineInfo>> running = new ConcurrentHashMap<>();
 
     private final CloseableSupplier<TwoTuple<ExecutorService, ScheduledFuture<?>>> scheduler;
 
@@ -95,7 +95,7 @@ public class DeadlineChecker implements AutoCloseable {
         Thread thread = currentThread();
         DeadlineInfo deadlineInfo = new DeadlineInfo(deadline.toMillis(),
                 thread, deadlineExceeded);
-        RUNNING.compute(thread, (t, deadlines) -> {
+        running.compute(thread, (t, deadlines) -> {
             if (deadlines == null) {
                 deadlines = new CopyOnWriteArrayList<>();
             }
@@ -105,7 +105,7 @@ public class DeadlineChecker implements AutoCloseable {
         try {
             return supplier.get();
         } finally {
-            RUNNING.compute(thread, (t, deadlines) -> {
+            running.compute(thread, (t, deadlines) -> {
                 if (deadlines == null) {
                     return null;
                 }
@@ -121,7 +121,7 @@ public class DeadlineChecker implements AutoCloseable {
 
     private void checkDeadline() {
         Set<Thread> changedThreads = new HashSet<>();
-        RUNNING.forEach((thread, deadlines) -> {
+        running.forEach((thread, deadlines) -> {
             for (DeadlineInfo deadline : deadlines) {
                 if (deadline.tryCheckDeadlineExceeded()) {
                     // deadlines is a COWArrayList, so using remove instead of iterator.remove
@@ -131,7 +131,7 @@ public class DeadlineChecker implements AutoCloseable {
             }
         });
         changedThreads.forEach(thread -> { //
-            RUNNING.compute(thread, (t, deadlines) -> { //
+            running.compute(thread, (t, deadlines) -> { //
                 if (deadlines == null) {
                     return null;
                 }
@@ -149,7 +149,7 @@ public class DeadlineChecker implements AutoCloseable {
         scheduler.tryClose(tuple -> {
             tuple.getSecond().cancel(true);
             shutdownAndAwaitTermination(tuple.getFirst(), 1, MINUTES);
-            RUNNING.clear();
+            running.clear();
         });
     }
 
@@ -182,5 +182,12 @@ public class DeadlineChecker implements AutoCloseable {
                 return false;
             }
         }
+    }
+
+    /**
+     * for test purpose
+     */
+    Map<Thread, List<DeadlineInfo>> getRunning() {
+        return running;
     }
 }

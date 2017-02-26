@@ -45,7 +45,7 @@ public class DeadlineCheckerTest {
         });
         System.out.println("end.");
 
-        assertTrue(helper.RUNNING.isEmpty());
+        assertTrue(helper.getRunning().isEmpty());
     }
 
     @Test
@@ -71,7 +71,7 @@ public class DeadlineCheckerTest {
         shutdownAndAwaitTermination(executor, 1, DAYS);
         assertTrue(!slowed.isEmpty());
         slowed.forEach(slow -> assertTrue(slow < 5));
-        assertTrue(helper.RUNNING.isEmpty());
+        assertTrue(helper.getRunning().isEmpty());
     }
 
     @Test
@@ -89,6 +89,6 @@ public class DeadlineCheckerTest {
         });
         System.out.println("end.");
 
-        assertTrue(helper.RUNNING.isEmpty());
+        assertTrue(helper.getRunning().isEmpty());
     }
 }

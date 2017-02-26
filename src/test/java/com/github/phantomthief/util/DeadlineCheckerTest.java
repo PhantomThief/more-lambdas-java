@@ -21,7 +21,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * @author w.vela <wangtianzhou@kuaishou.com>
+ * @author w.vela
  * Created on 2017-02-24.
  */
 public class DeadlineCheckerTest {

@@ -8,8 +8,8 @@ import static com.google.common.util.concurrent.MoreExecutors.shutdownAndAwaitTe
 import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.currentThread;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Duration;
@@ -61,13 +61,13 @@ public class DeadlineChecker implements AutoCloseable {
                             .setNameFormat("deadline-helper-%d") //
                             .build());
             return tuple(executor, executor.scheduleAtFixedRate(this::checkDeadline, ticker, ticker,
-                    MILLISECONDS));
+                    NANOSECONDS));
         });
     }
 
     public static DeadlineChecker deadlineWithMinTicker(Duration minTicker) {
-        long ticker = minTicker.toMillis();
-        checkArgument(ticker > 0, "invalid min ticker, it must be larger than 1ms.");
+        long ticker = minTicker.toNanos();
+        checkArgument(ticker > 0, "invalid min ticker, it must be larger than 1ns.");
         return new DeadlineChecker(ticker);
     }
 

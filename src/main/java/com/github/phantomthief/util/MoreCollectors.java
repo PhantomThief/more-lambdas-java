@@ -82,9 +82,6 @@ public final class MoreCollectors {
         return Collectors.toMap(Entry::getKey, Entry::getValue);
     }
 
-    /**
-     * 等待guava 21.0 GA后，迁移到相应的方法上
-     */
     @Deprecated
     public static <T, K> Collector<T, ?, HashMultiset<K>> toMultiset(
             Function<? super T, ? extends K> elementMapper, ToIntFunction<? super T> countMapper) {
@@ -98,7 +95,7 @@ public final class MoreCollectors {
     }
 
     /**
-     * 等待guava 21.0 GA后，迁移到相应的方法上
+     * use {@link com.google.common.collect.Multimaps#toMultimap(Function, Function, Supplier)} if using guava 21.0+
      */
     @Deprecated
     public static <T, K, U, M extends Multimap<K, U>> Collector<T, ?, M> toMultimap(

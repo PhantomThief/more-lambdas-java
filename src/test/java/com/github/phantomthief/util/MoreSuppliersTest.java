@@ -9,7 +9,7 @@ import org.junit.Test;
 import com.github.phantomthief.util.MoreSuppliers.CloseableSupplier;
 
 /**
- * @author w.vela <wangtianzhou@kuaishou.com>
+ * @author w.vela
  * Created on 2017-02-22.
  */
 public class MoreSuppliersTest {

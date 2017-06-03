@@ -28,8 +28,22 @@ public final class MoreFunctions {
         return catching(callable, e -> logger.error("", e));
     }
 
+    public static <X extends Exception> void catching(ThrowableRunnable<X> callable) {
+        catching(() -> {
+            callable.run();
+            return null;
+        }, e -> logger.error("", e));
+    }
+
     public static <R> R throwing(Callable<R> callable) {
         return catching(callable, Throwables::propagate);
+    }
+
+    public static <X extends Exception> void throwing(ThrowableRunnable<X> callable) {
+        catching(() -> {
+            callable.run();
+            return null;
+        }, Throwables::propagate);
     }
 
     public static <R, X extends Throwable> R catching(Callable<R> callable,

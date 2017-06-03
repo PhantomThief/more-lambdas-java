@@ -28,7 +28,7 @@ public final class MoreFunctions {
         return catching(callable, e -> logger.error("", e));
     }
 
-    public static <X extends Exception> void catching(ThrowableRunnable<X> callable) {
+    public static <X extends Exception> void runCatching(ThrowableRunnable<X> callable) {
         catching(() -> {
             callable.run();
             return null;
@@ -39,7 +39,7 @@ public final class MoreFunctions {
         return catching(callable, Throwables::propagate);
     }
 
-    public static <X extends Exception> void throwing(ThrowableRunnable<X> callable) {
+    public static <X extends Exception> void runThrowing(ThrowableRunnable<X> callable) {
         catching(() -> {
             callable.run();
             return null;

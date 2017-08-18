@@ -12,6 +12,10 @@ public class TwoTuple<A, B> {
 
     public final B second;
 
+    /**
+     * use {@link Tuple#tuple(Object, Object)} instead
+     */
+    @Deprecated
     public TwoTuple(final A a, final B b) {
         first = a;
         second = b;

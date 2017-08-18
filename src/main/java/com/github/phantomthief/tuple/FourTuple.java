@@ -12,6 +12,9 @@ public final class FourTuple<A, B, C, D> extends ThreeTuple<A, B, C> {
 
     public final D fourth;
 
+    /**
+     * use {@link Tuple#tuple(Object, Object, Object, Object)} instead
+     */
     public FourTuple(final A a, final B b, final C c, final D d) {
         super(a, b, c);
         fourth = d;

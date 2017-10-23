@@ -18,10 +18,14 @@ import java.util.function.Supplier;
 public final class MoreSuppliers {
 
     public static <T> CloseableSupplier<T> lazy(Supplier<T> delegate) {
+        return lazy(delegate, true);
+    }
+
+    public static <T> CloseableSupplier<T> lazy(Supplier<T> delegate, boolean resetAfterClose) {
         if (delegate instanceof CloseableSupplier) {
             return (CloseableSupplier<T>) delegate;
         } else {
-            return new CloseableSupplier<>(checkNotNull(delegate));
+            return new CloseableSupplier<>(checkNotNull(delegate), resetAfterClose);
         }
     }
 
@@ -42,11 +46,13 @@ public final class MoreSuppliers {
 
         private static final long serialVersionUID = 0L;
         private final Supplier<T> delegate;
+        private final boolean resetAfterClose;
         private volatile transient boolean initialized;
         private transient T value;
 
-        private CloseableSupplier(Supplier<T> delegate) {
+        private CloseableSupplier(Supplier<T> delegate, boolean resetAfterClose) {
             this.delegate = delegate;
+            this.resetAfterClose = resetAfterClose;
         }
 
         public T get() {
@@ -94,8 +100,10 @@ public final class MoreSuppliers {
             synchronized (this) {
                 if (initialized) {
                     close.accept(value);
-                    this.value = null;
-                    initialized = false;
+                    if (resetAfterClose) {
+                        this.value = null;
+                        initialized = false;
+                    }
                 }
             }
         }

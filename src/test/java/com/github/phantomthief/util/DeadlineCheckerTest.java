@@ -10,31 +10,31 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.joining;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author w.vela
  * Created on 2017-02-24.
  */
-public class DeadlineCheckerTest {
+class DeadlineCheckerTest {
 
     private static DeadlineChecker helper;
 
-    @BeforeClass
-    public static void setup() {
+    @BeforeAll
+    static void setup() {
         helper = DeadlineChecker.deadlineWithMinTicker(ofMillis(10));
     }
 
     @Test
-    public void test() {
+    void test() {
         System.out.println("start.");
         helper.runWithDeadline(() -> { //
             sleepUninterruptibly(5, SECONDS);
@@ -49,7 +49,7 @@ public class DeadlineCheckerTest {
     }
 
     @Test
-    public void testMultiThread() {
+    void testMultiThread() {
         ExecutorService executor = newFixedThreadPool(10);
         Set<Integer> slowed = synchronizedSet(new HashSet<>());
         for (int i = 0; i < 10; i++) {
@@ -75,7 +75,7 @@ public class DeadlineCheckerTest {
     }
 
     @Test
-    public void testLoop() {
+    void testLoop() {
         System.out.println("start.");
         helper.runWithDeadline(() -> { //
             helper.runWithDeadline(() -> { //

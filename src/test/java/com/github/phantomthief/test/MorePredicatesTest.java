@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.github.phantomthief.test;
 
 import java.util.Arrays;
@@ -10,17 +7,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.github.phantomthief.util.MorePredicates;
 
 /**
  * @author w.vela
  */
-public class MorePredicatesTest {
+class MorePredicatesTest {
 
     @Test
-    public void testDistinctUsing() {
+    void testDistinctUsing() {
         List<Bean> source = Arrays.asList(new Bean("name1", "address1"),
                 new Bean("name1", "address2"), new Bean("name3", "address2"));
         List<Bean> target = source.stream() //
@@ -33,7 +30,7 @@ public class MorePredicatesTest {
     }
 
     @Test
-    public void testAfter() {
+    void testAfter() {
         List<Integer> source = IntStream.range(1, 100).boxed().collect(Collectors.toList());
         List<Integer> target = source.stream() //
                 .filter(MorePredicates.afterElement(10)) //
@@ -63,16 +60,12 @@ public class MorePredicatesTest {
         private final String name;
         private final String address;
 
-        /**
-         * @param name
-         * @param address
-         */
         Bean(String name, String address) {
             this.name = name;
             this.address = address;
         }
 
-        public String getName() {
+        String getName() {
             return name;
         }
 
@@ -105,13 +98,10 @@ public class MorePredicatesTest {
                 return false;
             }
             if (name == null) {
-                if (other.name != null) {
-                    return false;
-                }
-            } else if (!name.equals(other.name)) {
-                return false;
+                return other.name == null;
+            } else {
+                return name.equals(other.name);
             }
-            return true;
         }
 
         @Override

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.github.phantomthief.util;
 
 import static java.util.Optional.ofNullable;

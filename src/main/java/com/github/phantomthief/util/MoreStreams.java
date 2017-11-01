@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.github.phantomthief.util;
 
 import static com.google.common.base.Preconditions.checkNotNull;

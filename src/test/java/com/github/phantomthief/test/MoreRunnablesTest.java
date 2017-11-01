@@ -1,10 +1,10 @@
 package com.github.phantomthief.test;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.github.phantomthief.util.MoreRunnables;
 
@@ -12,15 +12,15 @@ import com.github.phantomthief.util.MoreRunnables;
  * @author w.vela
  * Created on 16/3/14.
  */
-public class MoreRunnablesTest {
+class MoreRunnablesTest {
 
     @Test
-    public void test() {
+    void test() {
         AtomicBoolean runned = new AtomicBoolean(false);
         Runnable runOnce = MoreRunnables.runOnce(() -> {
             System.out.println("check run.");
             if (runned.get()) {
-                fail();
+                fail("failed");
             } else {
                 runned.set(true);
             }

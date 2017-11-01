@@ -1,10 +1,10 @@
 package com.github.phantomthief.util;
 
 import static com.github.phantomthief.util.MoreSuppliers.lazy;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.github.phantomthief.util.MoreSuppliers.CloseableSupplier;
 
@@ -12,10 +12,10 @@ import com.github.phantomthief.util.MoreSuppliers.CloseableSupplier;
  * @author w.vela
  * Created on 2017-02-22.
  */
-public class MoreSuppliersTest {
+class MoreSuppliersTest {
 
     @Test
-    public void test() {
+    void test() {
         int[] counter = { 0 };
         CloseableSupplier<String> supplier = lazy(() -> {
             counter[0]++;
@@ -29,7 +29,7 @@ public class MoreSuppliersTest {
     }
 
     @Test
-    public void tesNull() {
+    void tesNull() {
         int[] counter = { 0 };
         CloseableSupplier<String> supplier = lazy(() -> {
             counter[0]++;

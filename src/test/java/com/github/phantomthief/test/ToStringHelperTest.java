@@ -1,11 +1,12 @@
 package com.github.phantomthief.test;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.github.phantomthief.util.ToStringHelper;
 
@@ -13,14 +14,14 @@ import com.github.phantomthief.util.ToStringHelper;
  * @author w.vela
  * Created on 16/5/7.
  */
-public class ToStringHelperTest {
+class ToStringHelperTest {
 
     @Test
-    public void test() {
+    void test() {
         List<Integer> list = Arrays.asList(1, 2, 3);
         String ori = list.toString();
         List<Integer> list2 = ToStringHelper.wrapToString(List.class, list, i -> i + "!!!!");
         String newToString = list2.toString();
-        Assert.assertTrue(Objects.equals(ori + "!!!!", newToString));
+        assertTrue(Objects.equals(ori + "!!!!", newToString));
     }
 }

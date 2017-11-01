@@ -1,19 +1,16 @@
-/**
- * 
- */
 package com.github.phantomthief.test;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.github.phantomthief.util.MoreIterables;
 
 /**
  * @author w.vela
  */
-public class MoreIterablesTest {
+class MoreIterablesTest {
 
     @Test
-    public void testIterable() throws Exception {
+    void testIterable() {
         MoreIterables.batchClosedRange(2, 15, 4).forEach(System.out::println);
         System.out.println("======");
         MoreIterables.batchClosedRange(2, 13, 4).forEach(System.out::println);
@@ -29,7 +26,7 @@ public class MoreIterablesTest {
     }
 
     @Test
-    public void testRange() throws Exception {
+    void testRange() {
         MoreIterables.batchClosedSimpleRange(2, 15, 4).forEach(System.out::println);
         System.out.println("======");
         MoreIterables.batchClosedSimpleRange(2, 13, 4).forEach(System.out::println);

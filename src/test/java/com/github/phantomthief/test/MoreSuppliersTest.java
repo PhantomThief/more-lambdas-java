@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.github.phantomthief.test;
 
 import static com.github.phantomthief.util.MoreSuppliers.asyncLazy;
@@ -8,25 +5,25 @@ import static com.github.phantomthief.util.MoreSuppliers.lazy;
 import static com.google.common.util.concurrent.Uninterruptibles.sleepUninterruptibly;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Random;
 import java.util.function.Supplier;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.github.phantomthief.util.MoreSuppliers.CloseableSupplier;
 
 /**
  * @author w.vela
  */
-public class MoreSuppliersTest {
+class MoreSuppliersTest {
 
     @Test
-    public void test() throws Exception {
+    void test() {
         CloseableSupplier<Integer> lazy = lazy(() -> {
             System.out.println("start init...");
             sleepUninterruptibly(10, SECONDS);
@@ -49,29 +46,23 @@ public class MoreSuppliersTest {
     }
 
     @Test
-    public void test2() throws Exception {
-        CloseableSupplier<Integer> lazy = lazy(() -> {
-            int nextInt = new Random().nextInt(1000);
-            return nextInt;
-        });
+    void test2() {
+        CloseableSupplier<Integer> lazy = lazy(() -> new Random().nextInt(1000));
         Integer first = lazy.get();
         Integer second = lazy.get();
         assertTrue(first == second);
     }
 
     @Test
-    public void test3() throws Exception {
-        CloseableSupplier<Integer> lazy = lazy(() -> {
-            int nextInt = new Random().nextInt(1000);
-            return nextInt;
-        });
+    void test3() {
+        CloseableSupplier<Integer> lazy = lazy(() -> new Random().nextInt(1000));
         lazy.tryClose(t -> {
-            fail();
+            fail("failed.");
         });
     }
 
     @Test
-    public void asyncTest() {
+    void asyncTest() {
         Supplier<String> supplier = asyncLazy(() -> {
             System.out.println("initing...");
             sleepUninterruptibly(5, SECONDS);
@@ -91,7 +82,7 @@ public class MoreSuppliersTest {
     }
 
     @Test
-    public void asyncTestFailed() {
+    void asyncTestFailed() {
         int[] initTimes = { 0 };
         Supplier<String> supplier = asyncLazy(() -> {
             if (initTimes[0]++ <= 0) {

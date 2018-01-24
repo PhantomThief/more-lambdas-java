@@ -1,10 +1,15 @@
 package com.github.phantomthief.util;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 
@@ -70,5 +75,45 @@ public final class MoreFunctions {
             exceptionHandler.accept(e);
             return null;
         }
+    }
+
+    /**
+     * @see #supplyParallel(ForkJoinPool, ThrowableSupplier)
+     */
+    public static <X extends Throwable> void runParallel(ForkJoinPool pool,
+            ThrowableRunnable<X> func) throws X {
+        supplyParallel(pool, () -> {
+            func.run();
+            return null;
+        });
+    }
+
+    /**
+     * mainly use for {@link Stream#parallel()} with specific thread pool
+     * see https://stackoverflow.com/questions/21163108/custom-thread-pool-in-java-8-parallel-stream
+     */
+    public static <R, X extends Throwable> R supplyParallel(ForkJoinPool pool,
+            ThrowableSupplier<R, X> func) throws X {
+        checkNotNull(pool);
+        Throwable[] throwable = { null };
+        ForkJoinTask<R> task = pool.submit(() -> {
+            try {
+                return func.get();
+            } catch (Throwable e) {
+                throwable[0] = e;
+                return null;
+            }
+        });
+        R r;
+        try {
+            r = task.get();
+        } catch (ExecutionException | InterruptedException impossible) {
+            throw new AssertionError(impossible);
+        }
+        if (throwable[0] != null) {
+            //noinspection unchecked
+            throw (X) throwable[0];
+        }
+        return r;
     }
 }

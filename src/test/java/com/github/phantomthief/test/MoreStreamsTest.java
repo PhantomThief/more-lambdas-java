@@ -40,7 +40,9 @@ class MoreStreamsTest {
     void testParallel() {
         Stream<Integer> stream = Stream.iterate(1, i -> i + 1);
         List<Integer> integers = supplyParallel(new ForkJoinPool(10000), stream,
-                it -> it.limit(1000).collect(toList()));
+                it -> it.parallel() //
+                        .limit(1000) //
+                        .collect(toList()));
         System.out.println(integers);
     }
 }

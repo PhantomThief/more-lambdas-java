@@ -9,7 +9,7 @@ Some useful lambda implements for Java 8.
 <dependency>
     <groupId>com.github.phantomthief</groupId>
     <artifactId>more-lambdas</artifactId>
-    <version>0.1.10</version>
+    <version>0.1.13</version>
 </dependency>
 ```
 

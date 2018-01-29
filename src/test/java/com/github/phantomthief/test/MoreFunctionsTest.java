@@ -2,9 +2,12 @@ package com.github.phantomthief.test;
 
 import static com.github.phantomthief.util.MoreFunctions.catching;
 import static com.github.phantomthief.util.MoreFunctions.runParallel;
+import static com.github.phantomthief.util.MoreFunctions.throwing;
 import static java.util.stream.Collectors.toList;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Stream;
@@ -23,6 +26,16 @@ class MoreFunctionsTest {
         assertTrue(catching(i -> function(i, Exception::new), 1) == null);
         assertTrue(catching(i -> function(i, IllegalArgumentException::new), 1) == null);
         assertTrue(catching(i -> function(i, null), 1).equals("1"));
+    }
+
+    @Test
+    void testThrowing() {
+        assertThrows(IllegalArgumentException.class, () -> throwing(() -> {
+            throw new IllegalArgumentException();
+        }));
+        assertTrue(assertThrows(RuntimeException.class, () -> throwing(() -> {
+            throw new IOException();
+        })).getCause() instanceof IOException);
     }
 
     private <X extends Throwable> String function(int i, Supplier<X> exception) throws X {

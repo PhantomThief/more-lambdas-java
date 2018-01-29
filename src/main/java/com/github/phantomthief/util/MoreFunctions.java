@@ -1,6 +1,7 @@
 package com.github.phantomthief.util;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Throwables.throwIfUnchecked;
 import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -12,8 +13,6 @@ import java.util.concurrent.ForkJoinTask;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
-
-import com.google.common.base.Throwables;
 
 /**
  * @author w.vela
@@ -38,14 +37,20 @@ public final class MoreFunctions {
     }
 
     public static <R> R throwing(Callable<R> callable) {
-        return catching(callable, Throwables::propagate);
+        return catching(callable, throwable -> {
+            throwIfUnchecked(throwable);
+            throw new RuntimeException(throwable);
+        });
     }
 
     public static <X extends Exception> void runThrowing(ThrowableRunnable<X> callable) {
         catching(() -> {
             callable.run();
             return null;
-        }, Throwables::propagate);
+        }, throwable -> {
+            throwIfUnchecked(throwable);
+            throw new RuntimeException(throwable);
+        });
     }
 
     public static <R, X extends Throwable> R catching(Callable<R> callable,
@@ -63,7 +68,10 @@ public final class MoreFunctions {
     }
 
     public static <T, R> R throwing(ThrowableFunction<T, R, Exception> function, T t) {
-        return catching(function, t, Throwables::propagate);
+        return catching(function, t, throwable -> {
+            throwIfUnchecked(throwable);
+            throw new RuntimeException(throwable);
+        });
     }
 
     public static <T, R, X extends Throwable> R catching(

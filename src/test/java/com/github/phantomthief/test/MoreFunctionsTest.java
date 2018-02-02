@@ -2,6 +2,7 @@ package com.github.phantomthief.test;
 
 import static com.github.phantomthief.util.MoreFunctions.catching;
 import static com.github.phantomthief.util.MoreFunctions.runParallel;
+import static com.github.phantomthief.util.MoreFunctions.runWithThreadName;
 import static com.github.phantomthief.util.MoreFunctions.throwing;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -52,5 +53,13 @@ class MoreFunctionsTest {
         List<Integer> list = Stream.iterate(1, i -> i + 1).limit(10000).collect(toList());
         runParallel(new ForkJoinPool(10), () -> list.stream().parallel() //
                 .forEach(System.out::println));
+    }
+
+    @Test
+    void testThreadName() {
+        String mySuffix = "MySuffix";
+        runWithThreadName(it -> it + mySuffix, () -> { //
+            assertTrue(Thread.currentThread().getName().endsWith(mySuffix));
+        });
     }
 }

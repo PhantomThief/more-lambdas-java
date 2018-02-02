@@ -10,7 +10,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
+import java.util.function.Function;
 import java.util.stream.Stream;
+
+import javax.annotation.Nonnull;
 
 import org.slf4j.Logger;
 
@@ -123,5 +126,29 @@ public final class MoreFunctions {
             throw (X) throwable[0];
         }
         return r;
+    }
+
+    public static <X extends Throwable> void runWithThreadName(
+            @Nonnull Function<String, String> name, @Nonnull ThrowableRunnable<X> func) throws X {
+        supplyWithThreadName(name, () -> {
+            func.run();
+            return null;
+        });
+    }
+
+    public static <X extends Throwable, T> T supplyWithThreadName(
+            @Nonnull Function<String, String> name, @Nonnull ThrowableSupplier<T, X> func)
+            throws X {
+        Thread currentThread = Thread.currentThread();
+        String originalThreadName = currentThread.getName();
+        String newName = name.apply(originalThreadName);
+        if (newName != null) {
+            currentThread.setName(newName);
+        }
+        try {
+            return func.get();
+        } finally {
+            currentThread.setName(originalThreadName);
+        }
     }
 }

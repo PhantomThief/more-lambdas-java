@@ -1,5 +1,6 @@
 package com.github.phantomthief.concurrent;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.ArrayList;
@@ -8,8 +9,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.annotation.Nonnull;
+
 import org.slf4j.Logger;
 
+import com.github.phantomthief.util.ThrowableConsumer;
 import com.github.phantomthief.util.ThrowableRunnable;
 import com.google.common.util.concurrent.ForwardingListenableFuture;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -23,7 +27,7 @@ public class TimeoutListenableFuture<V> extends ForwardingListenableFuture<V> {
     private static final Logger logger = getLogger(TimeoutListenableFuture.class);
 
     private final ListenableFuture<V> delegate;
-    private final List<ThrowableRunnable<Exception>> timeoutListeners = new ArrayList<>();
+    private final List<ThrowableConsumer<TimeoutException, Exception>> timeoutListeners = new ArrayList<>();
 
     public TimeoutListenableFuture(ListenableFuture<V> delegate) {
         this.delegate = delegate;
@@ -34,8 +38,15 @@ public class TimeoutListenableFuture<V> extends ForwardingListenableFuture<V> {
         return delegate;
     }
 
-    public TimeoutListenableFuture<V> addTimeoutListener(ThrowableRunnable<Exception> consumer) {
-        timeoutListeners.add(consumer);
+    public TimeoutListenableFuture<V>
+            addTimeoutListener(@Nonnull ThrowableRunnable<Exception> listener) {
+        checkNotNull(listener);
+        return addTimeoutListener(e -> listener.run());
+    }
+
+    public TimeoutListenableFuture<V>
+            addTimeoutListener(@Nonnull ThrowableConsumer<TimeoutException, Exception> listener) {
+        timeoutListeners.add(checkNotNull(listener));
         return this;
     }
 
@@ -45,9 +56,9 @@ public class TimeoutListenableFuture<V> extends ForwardingListenableFuture<V> {
         try {
             return delegate().get(timeout, unit);
         } catch (TimeoutException e) {
-            for (ThrowableRunnable<Exception> timeoutListener : timeoutListeners) {
+            for (ThrowableConsumer<TimeoutException, Exception> listener : timeoutListeners) {
                 try {
-                    timeoutListener.run();
+                    listener.accept(e);
                 } catch (Exception e1) {
                     logger.error("", e1);
                 }

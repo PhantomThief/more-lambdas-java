@@ -1,9 +1,11 @@
 package com.github.phantomthief.util;
 
-import java.util.HashSet;
+import static java.util.Collections.newSetFromMap;
+
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -35,7 +37,7 @@ public final class MorePredicates {
     public static <T> Predicate<T> distinctUsing(Function<T, Object> mapper) {
         return new Predicate<T>() {
 
-            private final Set<Object> set = new HashSet<>();
+            private final Set<Object> set = newSetFromMap(new ConcurrentHashMap<>());
 
             @Override
             public boolean test(T t) {

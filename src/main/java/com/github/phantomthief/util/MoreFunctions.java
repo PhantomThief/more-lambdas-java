@@ -5,12 +5,18 @@ import static com.google.common.base.Throwables.throwIfUnchecked;
 import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -150,5 +156,17 @@ public final class MoreFunctions {
         } finally {
             currentThread.setName(originalThreadName);
         }
+    }
+
+    public static <K, V, T> Function<Entry<K, V>, T> mapKv(BiFunction<K, V, T> func) {
+        return entry -> func.apply(entry.getKey(), entry.getValue());
+    }
+
+    public static <K, V> Predicate<Entry<K, V>> filterKv(BiPredicate<K, V> func) {
+        return entry -> func.test(entry.getKey(), entry.getValue());
+    }
+
+    public static <K, V> Consumer<Entry<K, V>> consumerKv(BiConsumer<K, V> func) {
+        return entry -> func.accept(entry.getKey(), entry.getValue());
     }
 }

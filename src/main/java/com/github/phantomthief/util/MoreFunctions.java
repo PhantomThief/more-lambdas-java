@@ -72,11 +72,11 @@ public final class MoreFunctions {
         }
     }
 
-    public static <T, R> R catching(ThrowableFunction<T, R, Throwable> function, T t) {
+    public static <T, R> R catching(ThrowableFunction<T, R, Exception> function, T t) {
         return catching(function, t, e -> logger.error("", e));
     }
 
-    public static <T, R> R throwing(ThrowableFunction<T, R, Throwable> function, T t) {
+    public static <T, R> R throwing(ThrowableFunction<T, R, Exception> function, T t) {
         return catching(function, t, throwable -> {
             throwIfUnchecked(throwable);
             throw new RuntimeException(throwable);
@@ -84,7 +84,7 @@ public final class MoreFunctions {
     }
 
     public static <T, R, X extends Throwable> R catching(
-            ThrowableFunction<T, R, Throwable> function, T t,
+            ThrowableFunction<T, R, Exception> function, T t,
             ThrowableConsumer<Throwable, X> exceptionHandler) throws X {
         try {
             return function.apply(t);

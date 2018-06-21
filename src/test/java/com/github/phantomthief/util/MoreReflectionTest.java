@@ -14,6 +14,11 @@ class MoreReflectionTest {
         MyTest.test2();
     }
 
+    @Test
+    void testKotlinCaller() {
+        KotlinCaller.test1();
+    }
+
     static class MyTest {
 
         @Deprecated

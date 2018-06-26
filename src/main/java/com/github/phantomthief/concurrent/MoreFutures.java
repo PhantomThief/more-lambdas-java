@@ -35,7 +35,6 @@ public class MoreFutures {
      * @throws java.util.concurrent.CancellationException if task was canceled.
      * @throws ExecutionError if a {@link Error} occurred.
      * @throws UncheckedExecutionException if a normal Exception occurred.
-     * @throws NullPointerException if specified future is {@code null}.
      */
     public static <T> T getUnchecked(@Nonnull Future<? extends T> future,
             @Nonnull Duration duration) {
@@ -48,7 +47,6 @@ public class MoreFutures {
      * @throws java.util.concurrent.CancellationException if task was canceled.
      * @throws ExecutionError if a {@link Error} occurred.
      * @throws UncheckedExecutionException if a normal Exception occurred.
-     * @throws NullPointerException if specified future is {@code null}.
      */
     public static <T> T getUnchecked(@Nonnull Future<? extends T> future, @Nonnegative long timeout,
             @Nonnull TimeUnit unit) {

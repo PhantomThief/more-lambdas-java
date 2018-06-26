@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
  * @author w.vela
  * Created on 2018-06-25.
  */
-public class TryWaitResult<K, V> {
+class TryWaitResult<K, V> {
 
     private final Map<Future<? extends V>, V> success;
     private final Map<Future<? extends V>, Throwable> failed;

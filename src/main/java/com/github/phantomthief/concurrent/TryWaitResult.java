@@ -5,6 +5,7 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
@@ -45,7 +46,7 @@ public class TryWaitResult<K, V> {
     private <T2> Map<K, T2> transfer(Map<Future<? extends V>, T2> sourceMap,
             Map<Future<? extends V>, K> transferMap) {
         return sourceMap.entrySet().stream() //
-                .collect(toMap(entry -> transferMap.get(entry.getKey()), Map.Entry::getValue));
+                .collect(toMap(entry -> transferMap.get(entry.getKey()), Entry::getValue));
     }
 
     public Map<K, V> getSuccess() {

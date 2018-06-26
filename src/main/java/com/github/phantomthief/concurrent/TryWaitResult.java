@@ -78,18 +78,6 @@ public class TryWaitResult<K, V> {
                         it -> it.getKey().cancel(mayInterruptIfRunning)));
     }
 
-    public void orThrow() throws TryWaitException {
-        if (!failed.isEmpty() || !timeout.isEmpty() || !cancel.isEmpty()) {
-            throw new TryWaitException(this);
-        }
-    }
-
-    public void orThrowUnchecked() throws TryWaitUncheckedException {
-        if (!failed.isEmpty() || !timeout.isEmpty() || !cancel.isEmpty()) {
-            throw new TryWaitUncheckedException(this);
-        }
-    }
-
     @Override
     public String toString() {
         return toStringHelper(this) //

@@ -21,6 +21,11 @@ public class TryWaitUncheckedException extends RuntimeException {
     }
 
     @Nonnull
+    public <T> Map<Future<T>, Throwable> getSuccess() {
+        return result.getSuccess();
+    }
+
+    @Nonnull
     public <T> Map<Future<T>, Throwable> getFailed() {
         return result.getFailed();
     }

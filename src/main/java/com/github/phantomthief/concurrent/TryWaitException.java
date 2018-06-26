@@ -21,6 +21,11 @@ public class TryWaitException extends Exception {
     }
 
     @Nonnull
+    public <T> Map<Future<T>, Throwable> getSuccess() {
+        return result.getSuccess();
+    }
+
+    @Nonnull
     public <T> Map<Future<T>, Throwable> getFailed() {
         return result.getFailed();
     }

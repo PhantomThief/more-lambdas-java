@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -66,37 +67,59 @@ public class MoreFutures {
         }
     }
 
+    /**
+     * @throws TryWaitFutureUncheckedException if not all calls are successful.
+     */
     @Nonnull
-    public static <K extends Future<V>, V> Map<K, V> tryWait(@Nonnull Iterable<K> futures,
-            @Nonnull Duration duration) {
+    public static <F extends Future<V>, V> Map<F, V> tryWait(@Nonnull Iterable<F> futures,
+            @Nonnull Duration duration) throws TryWaitFutureUncheckedException {
         checkNotNull(futures);
         checkNotNull(duration);
         return tryWait(futures, duration.toNanos(), NANOSECONDS);
     }
 
+    /**
+     * @throws TryWaitFutureUncheckedException if not all calls are successful.
+     */
     @Nonnull
-    public static <K extends Future<V>, V> Map<K, V> tryWait(@Nonnull Iterable<K> futures,
-            @Nonnegative long timeout, @Nonnull TimeUnit unit) {
+    public static <F extends Future<V>, V> Map<F, V> tryWait(@Nonnull Iterable<F> futures,
+            @Nonnegative long timeout, @Nonnull TimeUnit unit)
+            throws TryWaitFutureUncheckedException {
         checkNotNull(futures);
         checkArgument(timeout > 0);
         checkNotNull(unit);
-        return tryWait(futures, timeout, unit, it -> it);
+        return tryWait(futures, timeout, unit, it -> it, TryWaitFutureUncheckedException::new);
     }
 
+    /**
+     * @throws TryWaitUncheckedException if not all calls are successful.
+     */
     @Nonnull
     public static <K, V, X extends Throwable> Map<K, V> tryWait(@Nonnull Iterable<K> keys,
             @Nonnull Duration duration, @Nonnull ThrowableFunction<K, Future<V>, X> asyncFunc)
-            throws X {
+            throws X, TryWaitUncheckedException {
         checkNotNull(keys);
         checkNotNull(duration);
         checkNotNull(asyncFunc);
         return tryWait(keys, duration.toNanos(), NANOSECONDS, asyncFunc);
     }
 
+    /**
+     * @throws TryWaitUncheckedException if not all calls are successful.
+     */
     @Nonnull
     public static <K, V, X extends Throwable> Map<K, V> tryWait(@Nonnull Iterable<K> keys,
             @Nonnegative long timeout, @Nonnull TimeUnit unit,
-            @Nonnull ThrowableFunction<K, Future<V>, X> asyncFunc) throws X {
+            @Nonnull ThrowableFunction<K, Future<V>, X> asyncFunc)
+            throws X, TryWaitUncheckedException {
+        return tryWait(keys, timeout, unit, asyncFunc, TryWaitUncheckedException::new);
+    }
+
+    @Nonnull
+    private static <K, V, X extends Throwable> Map<K, V> tryWait(@Nonnull Iterable<K> keys,
+            @Nonnegative long timeout, @Nonnull TimeUnit unit,
+            @Nonnull ThrowableFunction<K, Future<V>, X> asyncFunc,
+            @Nonnull Function<TryWaitResult, RuntimeException> throwing) throws X {
         checkNotNull(keys);
         checkArgument(timeout > 0);
         checkNotNull(unit);
@@ -130,7 +153,7 @@ public class MoreFutures {
         if (failMap.isEmpty() && timeoutMap.isEmpty() && cancelMap.isEmpty()) {
             return result.getSuccess();
         } else {
-            throw new TryWaitUncheckedException(result);
+            throw throwing.apply(result);
         }
     }
 

@@ -46,7 +46,6 @@ internal class MoreFuturesTest {
     }
 
     @Test
-    @Throws(TryWaitException::class)
     fun testTryWait1() {
         val list = (0..2).toList()
         val result =
@@ -58,13 +57,9 @@ internal class MoreFuturesTest {
                     "test:$it"
                 }
             }
-        for (entry in result.success.entries) {
-            val k = entry.key
-            val s = entry.value
-            assertEquals("test:$k", s)
+        for ((k, v) in result) {
+            assertEquals("test:$k", v)
         }
-        result.orThrow()
-        result.orThrowUnchecked()
     }
 
     @Test
@@ -79,22 +74,19 @@ internal class MoreFuturesTest {
             "timeout."
         }
         futures.add(timeoutFuture)
-        val result = tryWait(futures, ofMillis(100))
+        val exception =
+            assertThrows(TryWaitFutureUncheckedException::class.java) { tryWait(futures, ofMillis(100)) }
         for (future in futures) {
-            val s = result.success[future]
+            val s = exception.getSuccess<String>()[future]
             if (s != null) {
                 assertTrue(s.startsWith("test:"))
             } else {
-                val timeoutException = result.timeout[future]
+                val timeoutException = exception.timeout[future]
                 assertNotNull(timeoutException)
             }
         }
-        assertThrows(TryWaitException::class.java) { result.orThrow() }
-        val exception = assertThrows(
-            TryWaitUncheckedException::class.java
-        ) { result.orThrowUnchecked() }
-        assertEquals(1, exception.getTimeout<Any>().size)
-        val canceledMap = result.cancelAllTimeout(true)
+        assertEquals(1, exception.timeout.size)
+        val canceledMap = exception.cancelAllTimeout(true)
         assertEquals(1, canceledMap.size)
         assertSame(canceledMap.keys.iterator().next(), timeoutFuture)
         assertTrue(canceledMap.values.iterator().next())
@@ -110,9 +102,10 @@ internal class MoreFuturesTest {
             futures.add(executor.submit<String> { "test:$i" })
         }
         futures.add(executor.submit<String> { throw IllegalStateException() })
-        val result = tryWait(futures, ofSeconds(1))
+        val result =
+            assertThrows(TryWaitFutureUncheckedException::class.java) { tryWait(futures, ofSeconds(1)) }
         for (future in futures) {
-            val s = result.success[future]
+            val s = result.getSuccess<String>()[future]
             if (s != null) {
                 assertTrue(s.startsWith("test:"))
             } else {
@@ -120,11 +113,7 @@ internal class MoreFuturesTest {
                 assertSame(exception!!.javaClass, IllegalStateException::class.java)
             }
         }
-        val exception = assertThrows(TryWaitException::class.java) { result.orThrow() }
-        assertThrows(
-            TryWaitUncheckedException::class.java
-        ) { result.orThrowUnchecked() }
-        assertEquals(1, exception.getFailed<Any>().size)
+        assertEquals(1, result.failed.size)
     }
 
     @Test
@@ -139,9 +128,10 @@ internal class MoreFuturesTest {
         }
         futures.add(futureCancel)
         futureCancel.cancel(true)
-        val result = tryWait(futures, ofMillis(100))
+        val result =
+            assertThrows(TryWaitFutureUncheckedException::class.java) { tryWait(futures, ofMillis(100)) }
         for (future in futures) {
-            val s = result.success[future]
+            val s = result.getSuccess<String>()[future]
             if (s != null) {
                 assertTrue(s.startsWith("test:"))
             } else {
@@ -149,10 +139,6 @@ internal class MoreFuturesTest {
                 assertNotNull(exception)
             }
         }
-        assertThrows(TryWaitException::class.java) { result.orThrow() }
-        val exception = assertThrows(
-            TryWaitUncheckedException::class.java
-        ) { result.orThrowUnchecked() }
-        assertEquals(1, exception.getCancel<Any>().size)
+        assertEquals(1, result.cancel.size)
     }
 }

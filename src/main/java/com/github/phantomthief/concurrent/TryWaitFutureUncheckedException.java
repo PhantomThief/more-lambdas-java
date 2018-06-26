@@ -2,6 +2,7 @@ package com.github.phantomthief.concurrent;
 
 import java.util.Map;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 
 import javax.annotation.Nonnull;
@@ -11,36 +12,36 @@ import javax.annotation.Nonnull;
  * Created on 2018-06-25.
  */
 @SuppressWarnings("unchecked")
-public class TryWaitUncheckedException extends RuntimeException {
+public class TryWaitFutureUncheckedException extends RuntimeException {
 
     private final TryWaitResult result;
 
-    TryWaitUncheckedException(TryWaitResult result) {
+    TryWaitFutureUncheckedException(TryWaitResult result) {
         this.result = result;
     }
 
     @Nonnull
-    public <K, V> Map<K, V> getSuccess() {
+    public <V> Map<? extends Future<V>, V> getSuccess() {
         return result.getSuccess();
     }
 
     @Nonnull
-    public <K> Map<K, Throwable> getFailed() {
+    public Map<? extends Future<?>, Throwable> getFailed() {
         return result.getFailed();
     }
 
     @Nonnull
-    public <K> Map<K, TimeoutException> getTimeout() {
+    public Map<? extends Future<?>, TimeoutException> getTimeout() {
         return result.getTimeout();
     }
 
     @Nonnull
-    public <K> Map<K, CancellationException> getCancel() {
+    public Map<? extends Future<?>, CancellationException> getCancel() {
         return result.getCancel();
     }
 
     @Nonnull
-    public <K> Map<K, Boolean> cancelAllTimeout(boolean mayInterruptIfRunning) {
+    public Map<? extends Future<?>, Boolean> cancelAllTimeout(boolean mayInterruptIfRunning) {
         return result.cancelAllTimeout(mayInterruptIfRunning);
     }
 }

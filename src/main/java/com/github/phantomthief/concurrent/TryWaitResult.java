@@ -11,6 +11,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
+import javax.annotation.Nonnull;
+
 /**
  * @author w.vela
  * Created on 2018-06-25.
@@ -49,22 +51,27 @@ public class TryWaitResult<K, V> {
                 .collect(toMap(entry -> transferMap.get(entry.getKey()), Entry::getValue));
     }
 
+    @Nonnull
     public Map<K, V> getSuccess() {
         return successMap.get();
     }
 
+    @Nonnull
     public Map<K, Throwable> getFailed() {
         return failedMap.get();
     }
 
+    @Nonnull
     public Map<K, TimeoutException> getTimeout() {
         return timeoutMap.get();
     }
 
+    @Nonnull
     public Map<K, CancellationException> getCancel() {
         return cancelMap.get();
     }
 
+    @Nonnull
     public Map<K, Boolean> cancelAllTimeout(boolean mayInterruptIfRunning) {
         return timeout.entrySet().stream() //
                 .collect(toMap(entry -> futureMap.get(entry.getKey()),

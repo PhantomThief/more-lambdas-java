@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
  * @author w.vela
  * Created on 2018-06-25.
  */
-public class TryWaitResult<K, V> {
+class TryWaitResult<K, V> {
 
     private final Map<Future<? extends V>, V> success;
     private final Map<Future<? extends V>, Throwable> failed;
@@ -76,18 +76,6 @@ public class TryWaitResult<K, V> {
         return timeout.entrySet().stream() //
                 .collect(toMap(entry -> futureMap.get(entry.getKey()),
                         it -> it.getKey().cancel(mayInterruptIfRunning)));
-    }
-
-    public void orThrow() throws TryWaitException {
-        if (!failed.isEmpty() || !timeout.isEmpty() || !cancel.isEmpty()) {
-            throw new TryWaitException(this);
-        }
-    }
-
-    public void orThrowUnchecked() throws TryWaitUncheckedException {
-        if (!failed.isEmpty() || !timeout.isEmpty() || !cancel.isEmpty()) {
-            throw new TryWaitUncheckedException(this);
-        }
     }
 
     @Override

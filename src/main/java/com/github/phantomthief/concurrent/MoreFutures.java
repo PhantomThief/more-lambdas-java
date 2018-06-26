@@ -67,32 +67,39 @@ public class MoreFutures {
     }
 
     @Nonnull
-    public static <K extends Future<V>, V> TryWaitResult<K, V> tryWait(@Nonnull Iterable<K> futures,
+    public static <K extends Future<V>, V> Map<K, V> tryWait(@Nonnull Iterable<K> futures,
             @Nonnull Duration duration) {
+        checkNotNull(futures);
+        checkNotNull(duration);
         return tryWait(futures, duration.toNanos(), NANOSECONDS);
     }
 
     @Nonnull
-    public static <K extends Future<V>, V> TryWaitResult<K, V> tryWait(@Nonnull Iterable<K> futures,
+    public static <K extends Future<V>, V> Map<K, V> tryWait(@Nonnull Iterable<K> futures,
             @Nonnegative long timeout, @Nonnull TimeUnit unit) {
+        checkNotNull(futures);
+        checkArgument(timeout > 0);
+        checkNotNull(unit);
         return tryWait(futures, timeout, unit, it -> it);
     }
 
     @Nonnull
-    public static <K, V, X extends Throwable> TryWaitResult<K, V> tryWait(@Nonnull Iterable<K> keys,
+    public static <K, V, X extends Throwable> Map<K, V> tryWait(@Nonnull Iterable<K> keys,
             @Nonnull Duration duration, @Nonnull ThrowableFunction<K, Future<V>, X> asyncFunc)
             throws X {
+        checkNotNull(keys);
         checkNotNull(duration);
+        checkNotNull(asyncFunc);
         return tryWait(keys, duration.toNanos(), NANOSECONDS, asyncFunc);
     }
 
     @Nonnull
-    public static <K, V, X extends Throwable> TryWaitResult<K, V> tryWait(@Nonnull Iterable<K> keys,
+    public static <K, V, X extends Throwable> Map<K, V> tryWait(@Nonnull Iterable<K> keys,
             @Nonnegative long timeout, @Nonnull TimeUnit unit,
             @Nonnull ThrowableFunction<K, Future<V>, X> asyncFunc) throws X {
+        checkNotNull(keys);
         checkArgument(timeout > 0);
         checkNotNull(unit);
-        checkNotNull(keys);
         checkNotNull(asyncFunc);
 
         Map<Future<? extends V>, V> successMap = new LinkedHashMap<>();
@@ -116,7 +123,15 @@ public class MoreFutures {
             waitAndCollect(successMap, failMap, timeoutMap, cancelMap, future, remainingNanos);
             remainingNanos = end - nanoTime();
         }
-        return new TryWaitResult<>(successMap, failMap, timeoutMap, cancelMap, futureKeyMap);
+
+        TryWaitResult<K, V> result = new TryWaitResult<>(successMap, failMap, timeoutMap, cancelMap,
+                futureKeyMap);
+
+        if (failMap.isEmpty() && timeoutMap.isEmpty() && cancelMap.isEmpty()) {
+            return result.getSuccess();
+        } else {
+            throw new TryWaitUncheckedException(result);
+        }
     }
 
     private static <T> void waitAndCollect(Map<Future<? extends T>, T> successMap,

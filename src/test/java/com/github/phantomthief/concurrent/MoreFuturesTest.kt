@@ -9,6 +9,7 @@ import com.google.common.util.concurrent.UncheckedTimeoutException
 import com.google.common.util.concurrent.Uninterruptibles.sleepUninterruptibly
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -59,6 +60,23 @@ internal class MoreFuturesTest {
             }
         for ((k, v) in result) {
             assertEquals("test:$k", v)
+        }
+    }
+
+    @Test
+    fun testTryWaitWithNull() {
+        val list = (0..2).toList()
+        val result =
+            tryWait<Int, String, RuntimeException>(
+                list,
+                ofSeconds(1)
+            ) { it ->
+                executor.submit<String?> {
+                    null
+                }
+            }
+        for ((_, v) in result) {
+            assertNull(v)
         }
     }
 

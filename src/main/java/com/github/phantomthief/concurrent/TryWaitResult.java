@@ -4,8 +4,8 @@ import static com.github.phantomthief.util.MoreSuppliers.lazy;
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static java.util.stream.Collectors.toMap;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
@@ -47,8 +47,10 @@ class TryWaitResult<K, V> {
 
     private <T2> Map<K, T2> transfer(Map<Future<? extends V>, T2> sourceMap,
             Map<Future<? extends V>, K> transferMap) {
-        return sourceMap.entrySet().stream() //
-                .collect(toMap(entry -> transferMap.get(entry.getKey()), Entry::getValue));
+        Map<K, T2> map = new HashMap<>();
+        // not using collect, for value may be null.
+        sourceMap.forEach((k, v) -> map.put(transferMap.get(k), v));
+        return map;
     }
 
     @Nonnull

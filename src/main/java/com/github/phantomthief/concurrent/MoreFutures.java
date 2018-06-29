@@ -68,6 +68,8 @@ public class MoreFutures {
     }
 
     /**
+     * @see #tryWait(Iterable, long, TimeUnit)
+     *
      * @throws TryWaitFutureUncheckedException if not all calls are successful.
      */
     @Nonnull
@@ -79,7 +81,24 @@ public class MoreFutures {
     }
 
     /**
-     * @throws TryWaitFutureUncheckedException if not all calls are successful.
+     * A typical usage:
+     * {@code <pre>
+     *  // a fail-safe example
+     *  List<Future<User>> list = doSomeAsyncTasks();
+     *  Map<Future<User>, User> success;
+     *  try {
+     *    success = tryWait(list, 1, SECONDS);
+     *  } catch (TryWaitUncheckedException e) {
+     *    success = e.getSuccess(); // there are still some success
+     *  }
+     *
+     *  // a fail-fast example
+     *  List<Future<User>> list = doSomeAsyncTasks();
+     *  // don't try/catch the exception it throws.
+     *  Map<Future<User>, User> success; = tryWait(list, 1, SECONDS);
+     * </pre>}
+     *
+     * @throws TryWaitUncheckedException if not all calls are successful.
      */
     @Nonnull
     public static <F extends Future<V>, V> Map<F, V> tryWait(@Nonnull Iterable<F> futures,
@@ -92,6 +111,8 @@ public class MoreFutures {
     }
 
     /**
+     * @see #tryWait(Iterable, long, TimeUnit, ThrowableFunction)
+     *
      * @throws TryWaitUncheckedException if not all calls are successful.
      */
     @Nonnull
@@ -105,6 +126,23 @@ public class MoreFutures {
     }
 
     /**
+     * A typical usage:
+     * {@code <pre>
+     *  // a fail-safe example
+     *  List<Integer> list = getSomeIds();
+     *  Map<Integer, User> success;
+     *  try {
+     *    success = tryWait(list, 1, SECONDS, id -> executor.submit(() -> retrieve(id)));
+     *  } catch (TryWaitUncheckedException e) {
+     *    success = e.getSuccess(); // there are still some success
+     *  }
+     *
+     *  // a fail-fast example
+     *  List<Integer> list = getSomeIds();
+     *  // don't try/catch the exception it throws.
+     *  Map<Integer, User> success = tryWait(list, 1, SECONDS, id -> executor.submit(() -> retrieve(id)));
+     * </pre>}
+     *
      * @throws TryWaitUncheckedException if not all calls are successful.
      */
     @Nonnull

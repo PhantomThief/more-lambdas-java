@@ -18,3 +18,5 @@ hs_err_pid*
 .project
 .settings
 .classpath
+
+.DS_Store

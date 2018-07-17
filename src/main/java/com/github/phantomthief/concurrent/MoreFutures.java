@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.util.concurrent.Uninterruptibles.getUninterruptibly;
 import static java.lang.System.nanoTime;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import java.time.Duration;
@@ -13,14 +14,23 @@ import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.phantomthief.util.ThrowableFunction;
+import com.github.phantomthief.util.ThrowableRunnable;
+import com.google.common.util.concurrent.AbstractFuture;
 import com.google.common.util.concurrent.ExecutionError;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.common.util.concurrent.UncheckedTimeoutException;
@@ -30,6 +40,8 @@ import com.google.common.util.concurrent.UncheckedTimeoutException;
  * Created on 2018-06-25.
  */
 public class MoreFutures {
+
+    private static final Logger logger = LoggerFactory.getLogger(MoreFutures.class);
 
     /**
      * @throws UncheckedTimeoutException if timeout occurred.
@@ -211,6 +223,86 @@ public class MoreFutures {
             failMap.put(future, e.getCause());
         } catch (Throwable e) {
             failMap.put(future, e);
+        }
+    }
+
+    /**
+     * @param task any exception throwing would cancel the task. user should swallow exceptions by self.
+     * @param executor all task would be stopped after executor has been marked shutting down.
+     * @return a future that can cancel the task.
+     */
+    public static Future<?> scheduleWithDynamicDelay(@Nonnull ScheduledExecutorService executor,
+            @Nullable Duration initDelay, @Nonnull Scheduled task) {
+        checkNotNull(executor);
+        checkNotNull(task);
+        AtomicBoolean canceled = new AtomicBoolean(false);
+        AbstractFuture<?> future = new AbstractFuture<Object>() {
+
+            @Override
+            public boolean cancel(boolean mayInterruptIfRunning) {
+                canceled.set(true);
+                return super.cancel(mayInterruptIfRunning);
+            }
+        };
+        executor.schedule(new ScheduledTaskImpl(executor, task, canceled),
+                initDelay == null ? 0 : initDelay.toMillis(), MILLISECONDS);
+        return future;
+    }
+
+    /**
+     * @param task any exception throwing would be ignore and logged, task would not cancelled.
+     * @param executor all task would be stopped after executor has been marked shutting down.
+     * @return a future that can cancel the task.
+     */
+    public static Future<?> scheduleWithDynamicDelay(@Nonnull ScheduledExecutorService executor,
+            @Nonnull Supplier<Duration> delay, @Nonnull ThrowableRunnable<Throwable> task) {
+        checkNotNull(delay);
+        return scheduleWithDynamicDelay(executor, delay.get(), () -> {
+            try {
+                task.run();
+            } catch (Throwable e) {
+                logger.error("", e);
+            }
+            return delay.get();
+        });
+    }
+
+    public interface Scheduled extends Supplier<Duration> {
+
+        /**
+         * @return a delay for next run. {@code null} means stop.
+         */
+        @Nullable
+        @Override
+        Duration get();
+    }
+
+    private static class ScheduledTaskImpl implements Runnable {
+
+        private final ScheduledExecutorService executorService;
+        private final Scheduled scheduled;
+        private final AtomicBoolean canceled;
+
+        private ScheduledTaskImpl(ScheduledExecutorService executorService, Scheduled scheduled,
+                AtomicBoolean canceled) {
+            this.executorService = executorService;
+            this.scheduled = scheduled;
+            this.canceled = canceled;
+        }
+
+        @Override
+        public void run() {
+            if (canceled.get()) {
+                return;
+            }
+            try {
+                Duration delay = scheduled.get();
+                if (!canceled.get() && delay != null) {
+                    executorService.schedule(this, delay.toMillis(), MILLISECONDS);
+                }
+            } catch (Throwable e) {
+                logger.error("", e);
+            }
         }
     }
 }

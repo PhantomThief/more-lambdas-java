@@ -267,14 +267,13 @@ public class MoreFutures {
         });
     }
 
-    public interface Scheduled extends Supplier<Duration> {
+    public interface Scheduled {
 
         /**
          * @return a delay for next run. {@code null} means stop.
          */
         @Nullable
-        @Override
-        Duration get();
+        Duration run();
     }
 
     private static class ScheduledTaskImpl implements Runnable {
@@ -296,7 +295,7 @@ public class MoreFutures {
                 return;
             }
             try {
-                Duration delay = scheduled.get();
+                Duration delay = scheduled.run();
                 if (!canceled.get() && delay != null) {
                     executorService.schedule(this, delay.toMillis(), MILLISECONDS);
                 }

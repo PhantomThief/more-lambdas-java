@@ -9,6 +9,7 @@
 
         <junit-jupiter.version>5.0.2</junit-jupiter.version>
         <junit-platform.version>1.0.2</junit-platform.version>
+        <logback-classic.version>1.2.3</logback-classic.version>
 
         <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
@@ -86,6 +87,12 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-reflect</artifactId>
             <version>${kotlin.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback-classic.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

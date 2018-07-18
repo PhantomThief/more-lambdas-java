@@ -1,9 +1,11 @@
 package com.github.phantomthief.concurrent
 
 import com.github.phantomthief.concurrent.MoreFutures.getUnchecked
+import com.github.phantomthief.concurrent.MoreFutures.scheduleWithDynamicDelay
 import com.github.phantomthief.concurrent.MoreFutures.tryWait
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors.listeningDecorator
+import com.google.common.util.concurrent.MoreExecutors.shutdownAndAwaitTermination
 import com.google.common.util.concurrent.UncheckedExecutionException
 import com.google.common.util.concurrent.UncheckedTimeoutException
 import com.google.common.util.concurrent.Uninterruptibles.sleepUninterruptibly
@@ -13,14 +15,19 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.slf4j.LoggerFactory
 import java.time.Duration.ofMillis
 import java.time.Duration.ofSeconds
 import java.util.ArrayList
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors.newFixedThreadPool
+import java.util.concurrent.Executors.newScheduledThreadPool
+import java.util.concurrent.TimeUnit.DAYS
 import java.util.concurrent.TimeUnit.SECONDS
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * @author w.vela
@@ -28,6 +35,7 @@ import java.util.concurrent.TimeUnit.SECONDS
  */
 internal class MoreFuturesTest {
 
+    private val logger = LoggerFactory.getLogger(javaClass)
     private val executor = listeningDecorator(newFixedThreadPool(10))
 
     @Test
@@ -158,5 +166,31 @@ internal class MoreFuturesTest {
             }
         }
         assertEquals(1, result.cancel.size)
+    }
+
+    @Test
+    fun testDynamicDelay() {
+        val scheduled = newScheduledThreadPool(100)
+        val counter = AtomicInteger()
+        val future = scheduleWithDynamicDelay(scheduled, { ofSeconds(3) }) {
+            logger.info("current executor count:{}", counter.incrementAndGet())
+        }
+        sleepUninterruptibly(10, SECONDS)
+        assertEquals(3, counter.toInt())
+        future.cancel(true)
+        sleepUninterruptibly(10, SECONDS)
+        assertEquals(3, counter.toInt())
+        shutdownAndAwaitTermination(scheduled, 1, DAYS)
+    }
+
+    @Disabled
+    @Test
+    fun testDynamicScheduledMemoryLeak() {
+        val scheduled = newScheduledThreadPool(100)
+        val counter = AtomicInteger()
+        val future = scheduleWithDynamicDelay(scheduled, { ofMillis(10) }) {
+            logger.info("current executor count:{}", counter.incrementAndGet())
+        }
+        future.get()
     }
 }

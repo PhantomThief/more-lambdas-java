@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.phantomthief</groupId>
     <artifactId>more-lambdas</artifactId>
-    <version>0.1.25</version>
+    <version>0.1.26-SNAPSHOT</version>
 
     <properties>
         <guava.version>22.0</guava.version>

@@ -10,6 +10,6 @@
 
     <root>
         <appender-ref ref="stdout"/>
-        <level value="all"/>
+        <level value="info"/>
     </root>
 </configuration>

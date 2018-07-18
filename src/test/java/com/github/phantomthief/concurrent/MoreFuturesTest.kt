@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import java.time.Duration.ofMillis
@@ -180,5 +181,16 @@ internal class MoreFuturesTest {
         sleepUninterruptibly(10, SECONDS)
         assertEquals(3, counter.toInt())
         shutdownAndAwaitTermination(scheduled, 1, DAYS)
+    }
+
+    @Disabled
+    @Test
+    fun testDynamicScheduledMemoryLeak() {
+        val scheduled = newScheduledThreadPool(100)
+        val counter = AtomicInteger()
+        val future = scheduleWithDynamicDelay(scheduled, { ofMillis(10) }) {
+            logger.info("current executor count:{}", counter.incrementAndGet())
+        }
+        future.get()
     }
 }

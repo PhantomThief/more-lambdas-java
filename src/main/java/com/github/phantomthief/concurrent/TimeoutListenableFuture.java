@@ -29,8 +29,20 @@ public class TimeoutListenableFuture<V> extends ForwardingListenableFuture<V> {
     private final ListenableFuture<V> delegate;
     private final List<ThrowableConsumer<TimeoutException, Exception>> timeoutListeners = new ArrayList<>();
 
+    /**
+     * better use {@link #timeoutListenableFuture(ListenableFuture)}
+     */
     public TimeoutListenableFuture(ListenableFuture<V> delegate) {
         this.delegate = delegate;
+    }
+
+    public static <V> TimeoutListenableFuture<V>
+            timeoutListenableFuture(ListenableFuture<V> delegate) {
+        if (delegate instanceof TimeoutListenableFuture) {
+            return (TimeoutListenableFuture<V>) delegate;
+        } else {
+            return new TimeoutListenableFuture<>(delegate);
+        }
     }
 
     @Override

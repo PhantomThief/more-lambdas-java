@@ -1,5 +1,7 @@
 package com.github.phantomthief.util;
 
+import static com.github.phantomthief.util.MoreReflection.getCallerPlace;
+
 import org.junit.jupiter.api.Test;
 
 /**
@@ -23,7 +25,7 @@ class MoreReflectionTest {
 
         @Deprecated
         static void test() {
-            MoreReflection.logDeprecated(System.err::println);
+            System.err.println(getCallerPlace());
         }
 
         @Deprecated

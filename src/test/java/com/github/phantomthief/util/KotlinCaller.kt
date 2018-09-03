@@ -1,6 +1,6 @@
 package com.github.phantomthief.util
 
-import com.github.phantomthief.util.MoreReflection.logDeprecated
+import com.github.phantomthief.util.MoreReflection.getCallerPlace
 
 /**
  * @author w.vela
@@ -10,11 +10,11 @@ internal object KotlinCaller {
 
     @JvmStatic
     fun test1() {
-        test();
+        test()
     }
 
     @JvmStatic
     private fun test() {
-        logDeprecated(System.err::println)
+        System.err.println(getCallerPlace())
     }
 }

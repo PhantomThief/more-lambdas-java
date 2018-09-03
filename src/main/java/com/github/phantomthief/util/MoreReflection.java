@@ -6,9 +6,9 @@ import static com.google.common.util.concurrent.RateLimiter.create;
 import static java.lang.Thread.currentThread;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,16 +31,19 @@ public class MoreReflection {
     public static void logDeprecated(@Nonnull String message) {
         if (RATE_LIMITER.tryAcquire()) {
             checkNotNull(message);
-            logDeprecated(it -> logger.info(message, it));
+            StackTraceElement stack = getCallerPlace();
+            if (stack != null) {
+                logger.info(message, stack.getFileName() + ":" + stack.getLineNumber());
+            }
         }
     }
 
-    static void logDeprecated(@Nonnull Consumer<String> consumer) {
+    @Nullable
+    public static StackTraceElement getCallerPlace() {
         List<StackTraceElement> stackTrace = newArrayList(currentThread().getStackTrace());
         boolean afterSelf = false;
         boolean afterDeprecated = false;
         String deprecatedClass = null;
-        String found = null;
         for (StackTraceElement stack : stackTrace) {
             if (stack.getClassName().equals(MoreReflection.class.getName())) {
                 afterSelf = true;
@@ -57,12 +60,9 @@ public class MoreReflection {
                 continue;
             }
             if (afterDeprecated) {
-                found = stack.getFileName() + ":" + stack.getLineNumber();
-                break;
+                return stack;
             }
         }
-        if (found != null) {
-            consumer.accept(found);
-        }
+        return null;
     }
 }

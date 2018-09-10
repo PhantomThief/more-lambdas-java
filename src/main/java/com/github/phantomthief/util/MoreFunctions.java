@@ -29,20 +29,21 @@ import org.slf4j.Logger;
 public final class MoreFunctions {
 
     private static final Logger logger = getLogger(MoreFunctions.class);
+    private static final String FAIL_SAFE_MARK = "[fail safe]";
 
     public static <R> Optional<R> catchingOptional(Callable<R> callable) {
         return ofNullable(catching(callable));
     }
 
     public static <R> R catching(Callable<R> callable) {
-        return catching(callable, e -> logger.error("", e));
+        return catching(callable, e -> logger.error(FAIL_SAFE_MARK, e));
     }
 
     public static <X extends Exception> void runCatching(ThrowableRunnable<X> callable) {
         catching(() -> {
             callable.run();
             return null;
-        }, e -> logger.error("", e));
+        }, e -> logger.error(FAIL_SAFE_MARK, e));
     }
 
     public static <R> R throwing(Callable<R> callable) {
@@ -73,7 +74,7 @@ public final class MoreFunctions {
     }
 
     public static <T, R> R catching(ThrowableFunction<T, R, Exception> function, T t) {
-        return catching(function, t, e -> logger.error("", e));
+        return catching(function, t, e -> logger.error(FAIL_SAFE_MARK, e));
     }
 
     public static <T, R> R throwing(ThrowableFunction<T, R, Exception> function, T t) {

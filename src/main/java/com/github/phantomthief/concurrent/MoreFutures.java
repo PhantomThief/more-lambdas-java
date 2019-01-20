@@ -63,6 +63,17 @@ public class MoreFutures {
      */
     public static <T> T getUnchecked(@Nonnull Future<? extends T> future, @Nonnegative long timeout,
             @Nonnull TimeUnit unit) {
+        return getUnchecked(future, timeout, unit, false);
+    }
+
+    /**
+     * @throws UncheckedTimeoutException if timeout occurred.
+     * @throws java.util.concurrent.CancellationException if task was canceled.
+     * @throws ExecutionError if a {@link Error} occurred.
+     * @throws UncheckedExecutionException if a normal Exception occurred.
+     */
+    public static <T> T getUnchecked(@Nonnull Future<? extends T> future, @Nonnegative long timeout,
+            @Nonnull TimeUnit unit, boolean cancelOnTimeout) {
         checkArgument(timeout > 0);
         checkNotNull(future);
         try {
@@ -75,6 +86,9 @@ public class MoreFutures {
                 throw new UncheckedExecutionException(cause);
             }
         } catch (TimeoutException e) {
+            if (cancelOnTimeout) {
+                future.cancel(false);
+            }
             throw new UncheckedTimeoutException(e);
         }
     }

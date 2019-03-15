@@ -6,10 +6,14 @@ import static java.util.stream.Collectors.toMap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
@@ -88,5 +92,18 @@ class TryWaitResult<K, V> {
                 .add("timeout", timeout.size()) //
                 .add("cancel", cancel.size()) //
                 .toString();
+    }
+
+    public String getCombinedExceptionMessage() {
+        return Stream.of(getFailed(), getTimeout(), getCancel())
+                .map(map -> map.entrySet().stream())
+                .flatMap(Function.identity())
+                .map(this::exceptionEntryToString)
+                .collect(Collectors.joining("\n"));
+    }
+
+    private String exceptionEntryToString(Entry<?, ? extends Throwable> entry) {
+        return String.format("key:%s, exception:%s, message:%s", entry.getKey(),
+                entry.getValue().getClass(), entry.getValue().getMessage());
     }
 }

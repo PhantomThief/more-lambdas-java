@@ -44,4 +44,9 @@ public class TryWaitFutureUncheckedException extends RuntimeException {
     public Map<? extends Future<?>, Boolean> cancelAllTimeout(boolean mayInterruptIfRunning) {
         return result.cancelAllTimeout(mayInterruptIfRunning);
     }
+
+    @Override
+    public String getMessage() {
+        return result.getCombinedExceptionMessage();
+    }
 }

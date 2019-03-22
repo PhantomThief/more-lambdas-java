@@ -43,4 +43,10 @@ public class TryWaitUncheckedException extends RuntimeException {
     public <K> Map<K, Boolean> cancelAllTimeout(boolean mayInterruptIfRunning) {
         return result.cancelAllTimeout(mayInterruptIfRunning);
     }
+
+    @Override
+    public String getMessage() {
+        return result.getCombinedExceptionMessage();
+    }
+
 }

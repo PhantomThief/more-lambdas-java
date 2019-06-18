@@ -49,9 +49,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:https://github.com/PhantomThief/more-lambdas-java.git</connection>
+        <connection>scm:git:git@github.com:PhantomThief/more-lambdas-java.git</connection>
         <url>https://github.com/PhantomThief/more-lambdas-java.git</url>
-        <developerConnection>scm:git:https://github.com/PhantomThief/more-lambdas-java.git
+        <developerConnection>scm:git:git@github.com:PhantomThief/more-lambdas-java.git
         </developerConnection>
     </scm>
 

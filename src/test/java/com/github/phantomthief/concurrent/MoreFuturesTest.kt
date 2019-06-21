@@ -169,6 +169,30 @@ internal class MoreFuturesTest {
     }
 
     @Test
+    fun testTryWaitTimeout() {
+        val futures = ArrayList<ListenableFuture<String>>()
+        for (i in 0..5) {
+            futures.add(executor.submit<String> {
+                sleepUninterruptibly(1, SECONDS)
+                "test:$i"
+            })
+        }
+        val result =
+            assertThrows(TryWaitFutureUncheckedException::class.java) { tryWait(futures, ofMillis(100)) }
+        for (future in futures) {
+            val s = result.getSuccess<String>()[future]
+            if (s != null) {
+                assertTrue(s.startsWith("test:"))
+            } else {
+                val exception = result.timeout[future]
+                        .also(::println)
+                assertNotNull(exception)
+            }
+        }
+        assertEquals(6, result.timeout.size)
+    }
+
+    @Test
     fun testDynamicDelay() {
         val scheduled = newScheduledThreadPool(100)
         val counter = AtomicInteger()

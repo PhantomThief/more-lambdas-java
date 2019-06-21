@@ -204,7 +204,7 @@ public class MoreFutures {
             checkNotNull(future);
             futureKeyMap.put(future, key);
             if (remainingNanos <= 0) {
-                waitAndCollect(successMap, failMap, timeoutMap, cancelMap, future, 1L);
+                timeoutMap.put(future, new TimeoutException("Timed out waiting for others over " + unit.toMillis(timeout) + "ms"));
                 continue;
             }
             waitAndCollect(successMap, failMap, timeoutMap, cancelMap, future, remainingNanos);

@@ -18,7 +18,7 @@ Some useful lambda implements for Java 8.
 advanced distinct
 ```Java
 List<String> list = ....;
-List<String> result = list.stream() //
+List<String> result = list.stream()
 	.filter(MorePredicates.distinctUsing(Object::hashCode)) // distinct using hashCode
 	.collect(Collectors.toList());
 ```
@@ -26,7 +26,7 @@ List<String> result = list.stream() //
 more collectors
 ```Java
 Map<Integer, String> map = ...;
-map.entrySet().stream() //
+map.entrySet().stream()
 	... // some ops
 	.collect(MoreCollectors.toMap()); // no need to map key and value again if it's an entry stream.
 ```

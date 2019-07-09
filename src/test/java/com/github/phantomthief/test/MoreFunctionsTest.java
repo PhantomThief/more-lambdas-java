@@ -56,14 +56,14 @@ class MoreFunctionsTest {
     @Test
     void testParallel() {
         List<Integer> list = Stream.iterate(1, i -> i + 1).limit(10000).collect(toList());
-        runParallel(new ForkJoinPool(10), () -> list.stream().parallel() //
+        runParallel(new ForkJoinPool(10), () -> list.stream().parallel()
                 .forEach(System.out::println));
     }
 
     @Test
     void testThreadName() {
         String mySuffix = "MySuffix";
-        runWithThreadName(it -> it + mySuffix, () -> { //
+        runWithThreadName(it -> it + mySuffix, () -> {
             assertTrue(Thread.currentThread().getName().endsWith(mySuffix));
         });
     }
@@ -71,11 +71,11 @@ class MoreFunctionsTest {
     @Test
     void testKv() {
         Map<String, Integer> map = ImmutableMap.of("test", 1, "a1", 2);
-        map.entrySet().stream() //
-                .filter(filterKv((k, v) -> true)) //
+        map.entrySet().stream()
+                .filter(filterKv((k, v) -> true))
                 .forEach(consumerKv((k, v) -> System.out.println(k + "==>" + v)));
-        map.entrySet().stream() //
-                .map(mapKv((k, v) -> v)) //
+        map.entrySet().stream()
+                .map(mapKv((k, v) -> v))
                 .forEach(System.out::println);
     }
 }

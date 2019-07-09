@@ -79,18 +79,18 @@ class TryWaitResult<K, V> {
 
     @Nonnull
     public Map<K, Boolean> cancelAllTimeout(boolean mayInterruptIfRunning) {
-        return timeout.entrySet().stream() //
+        return timeout.entrySet().stream()
                 .collect(toMap(entry -> futureMap.get(entry.getKey()),
                         it -> it.getKey().cancel(mayInterruptIfRunning)));
     }
 
     @Override
     public String toString() {
-        return toStringHelper(this) //
-                .add("success", success.size()) //
-                .add("failed", failed.size()) //
-                .add("timeout", timeout.size()) //
-                .add("cancel", cancel.size()) //
+        return toStringHelper(this)
+                .add("success", success.size())
+                .add("failed", failed.size())
+                .add("timeout", timeout.size())
+                .add("cancel", cancel.size())
                 .toString();
     }
 

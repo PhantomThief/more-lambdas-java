@@ -36,11 +36,11 @@ class DeadlineCheckerTest {
     @Test
     void test() {
         System.out.println("start.");
-        helper.runWithDeadline(() -> { //
+        helper.runWithDeadline(() -> {
             sleepUninterruptibly(5, SECONDS);
-        }, ofSeconds(2), t -> { //
+        }, ofSeconds(2), t -> {
             System.err.println("slow run found. thread:" + t + ", stack:"
-                    + stream(t.getStackTrace()).map(StackTraceElement::toString) //
+                    + stream(t.getStackTrace()).map(StackTraceElement::toString)
                             .collect(joining("\n")));
         });
         System.out.println("end.");
@@ -54,7 +54,7 @@ class DeadlineCheckerTest {
         Set<Integer> slowed = synchronizedSet(new HashSet<>());
         for (int i = 0; i < 10; i++) {
             int j = i;
-            executor.execute(() -> { //
+            executor.execute(() -> {
                 assertEquals(helper.supplyWithDeadline(() -> {
                     if (j < 5) {
                         sleepUninterruptibly(2, SECONDS);
@@ -77,14 +77,14 @@ class DeadlineCheckerTest {
     @Test
     void testLoop() {
         System.out.println("start.");
-        helper.runWithDeadline(() -> { //
-            helper.runWithDeadline(() -> { //
+        helper.runWithDeadline(() -> {
+            helper.runWithDeadline(() -> {
                 // inner run
                 sleepUninterruptibly(5, SECONDS);
             }, ofSeconds(1), t -> System.err.println("inner slow:" + t));
             // outer run
             sleepUninterruptibly(5, SECONDS);
-        }, ofSeconds(2), t -> { //
+        }, ofSeconds(2), t -> {
             System.err.println("slow run found. thread:" + t);
         });
         System.out.println("end.");

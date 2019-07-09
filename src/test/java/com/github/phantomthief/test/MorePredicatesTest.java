@@ -20,8 +20,8 @@ class MorePredicatesTest {
     void testDistinctUsing() {
         List<Bean> source = Arrays.asList(new Bean("name1", "address1"),
                 new Bean("name1", "address2"), new Bean("name3", "address2"));
-        List<Bean> target = source.stream() //
-                .filter(MorePredicates.distinctUsing(Bean::getName)) //
+        List<Bean> target = source.stream()
+                .filter(MorePredicates.distinctUsing(Bean::getName))
                 .collect(Collectors.toList());
         Set<String> result = new HashSet<>();
         for (Bean bean : target) {
@@ -32,22 +32,22 @@ class MorePredicatesTest {
     @Test
     void testAfter() {
         List<Integer> source = IntStream.range(1, 100).boxed().collect(Collectors.toList());
-        List<Integer> target = source.stream() //
-                .filter(MorePredicates.afterElement(10)) //
+        List<Integer> target = source.stream()
+                .filter(MorePredicates.afterElement(10))
                 .collect(Collectors.toList());
         System.out.println(target);
         for (Integer i : target) {
             assert (i >= 10);
         }
-        target = source.stream() //
-                .filter(MorePredicates.afterElement(10, false)) //
+        target = source.stream()
+                .filter(MorePredicates.afterElement(10, false))
                 .collect(Collectors.toList());
         System.out.println(target);
         for (Integer i : target) {
             assert (i > 10);
         }
-        target = source.stream() //
-                .filter(MorePredicates.after(i -> i == 10, false)) //
+        target = source.stream()
+                .filter(MorePredicates.after(i -> i == 10, false))
                 .collect(Collectors.toList());
         System.out.println(target);
         for (Integer i : target) {

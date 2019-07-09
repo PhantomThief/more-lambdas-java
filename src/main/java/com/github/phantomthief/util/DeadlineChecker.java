@@ -57,8 +57,8 @@ public class DeadlineChecker implements AutoCloseable {
     private DeadlineChecker(long ticker) {
         this.scheduler = lazy(() -> {
             ScheduledExecutorService executor = newSingleThreadScheduledExecutor(
-                    new ThreadFactoryBuilder() //
-                            .setNameFormat("deadline-helper-%d") //
+                    new ThreadFactoryBuilder()
+                            .setNameFormat("deadline-helper-%d")
                             .build());
             return tuple(executor, executor.scheduleAtFixedRate(this::checkDeadline, ticker, ticker,
                     NANOSECONDS));
@@ -130,8 +130,8 @@ public class DeadlineChecker implements AutoCloseable {
                 }
             }
         });
-        changedThreads.forEach(thread -> { //
-            running.compute(thread, (t, deadlines) -> { //
+        changedThreads.forEach(thread -> {
+            running.compute(thread, (t, deadlines) -> {
                 if (deadlines == null) {
                     return null;
                 }

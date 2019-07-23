@@ -40,18 +40,23 @@ public class MoreReflection {
 
     @Nullable
     public static StackTraceElement getCallerPlace() {
+        return getCallerPlace(MoreReflection.class);
+    }
+
+    @Nullable
+    public static StackTraceElement getCallerPlace(Class<?> locationAwareClass) {
         List<StackTraceElement> stackTrace = newArrayList(currentThread().getStackTrace());
         boolean afterSelf = false;
         boolean afterDeprecated = false;
         String deprecatedClass = null;
         for (StackTraceElement stack : stackTrace) {
-            if (stack.getClassName().equals(MoreReflection.class.getName())) {
+            if (stack.getClassName().equals(locationAwareClass.getName())) {
                 afterSelf = true;
                 continue;
             }
             if (afterSelf) {
                 if (deprecatedClass == null
-                        && !stack.getClassName().equals(MoreReflection.class.getName())) {
+                        && !stack.getClassName().equals(locationAwareClass.getName())) {
                     deprecatedClass = stack.getClassName();
                 }
             }

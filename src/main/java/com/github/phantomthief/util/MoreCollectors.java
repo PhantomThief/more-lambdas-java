@@ -5,6 +5,8 @@ import static java.util.stream.Stream.of;
 
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -32,6 +34,7 @@ public final class MoreCollectors {
 
     public static final Set<Collector.Characteristics> CH_ID = Collections
             .unmodifiableSet(EnumSet.of(Collector.Characteristics.IDENTITY_FINISH));
+    public static final Set<Collector.Characteristics> CH_NOID = Collections.emptySet();
 
     private MoreCollectors() {
         throw new UnsupportedOperationException();
@@ -120,6 +123,50 @@ public final class MoreCollectors {
         BiConsumer<M, T> accumulator = (map, element) -> map.merge(keyMapper.apply(element),
                 valueMapper.apply(element), mergeFunction);
         return new CollectorImpl<>(mapSupplier, accumulator, mapMerger(mergeFunction), CH_ID);
+    }
+
+    public static <T, K> Collector<T, ?, Map<K, List<T>>> groupingByAllowNullKey(
+            Function<? super T, ? extends K> classifier) {
+        return groupingByAllowNullKey(classifier, toList());
+    }
+
+    public static <T, K, A, D> Collector<T, ?, Map<K, D>> groupingByAllowNullKey(
+            Function<? super T, ? extends K> classifier,
+            Collector<? super T, A, D> downstream) {
+        return groupingByAllowNullKey(classifier, HashMap::new, downstream);
+    }
+
+    /**
+     * allow null key for mapFactory, nothing else changes
+     */
+    public static <T, K, D, A, M extends Map<K, D>> Collector<T, ?, M> groupingByAllowNullKey(
+            Function<? super T, ? extends K> classifier,
+            Supplier<M> mapFactory,
+            Collector<? super T, A, D> downstream) {
+        Supplier<A> downstreamSupplier = downstream.supplier();
+        BiConsumer<A, ? super T> downstreamAccumulator = downstream.accumulator();
+        BiConsumer<Map<K, A>, T> accumulator = (m, t) -> {
+            K key = classifier.apply(t);
+            A container = m.computeIfAbsent(key, k -> downstreamSupplier.get());
+            downstreamAccumulator.accept(container, t);
+        };
+        BinaryOperator<Map<K, A>> merger = mapMerger(downstream.combiner());
+        @SuppressWarnings("unchecked")
+        Supplier<Map<K, A>> mangledFactory = (Supplier<Map<K, A>>) mapFactory;
+
+        if (downstream.characteristics().contains(Collector.Characteristics.IDENTITY_FINISH)) {
+            return new CollectorImpl<>(mangledFactory, accumulator, merger, CH_ID);
+        } else {
+            @SuppressWarnings("unchecked")
+            Function<A, A> downstreamFinisher = (Function<A, A>) downstream.finisher();
+            Function<Map<K, A>, M> finisher = intermediate -> {
+                intermediate.replaceAll((k, v) -> downstreamFinisher.apply(v));
+                @SuppressWarnings("unchecked")
+                M castResult = (M) intermediate;
+                return castResult;
+            };
+            return new CollectorImpl<>(mangledFactory, accumulator, merger, finisher, CH_NOID);
+        }
     }
 
     @SuppressWarnings("unchecked")

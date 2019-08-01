@@ -2,11 +2,11 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.phantomthief</groupId>
     <artifactId>more-lambdas-parent</artifactId>
-    <version>${revision}</version>
+    <version>0.1.31</version>
     <packaging>pom</packaging>
 
     <properties>
-        <revision>0.1.31-SNAPSHOT</revision>
+        <revision>0.1.31</revision>
         <jdk.version>1.8</jdk.version>
 
         <slf4j-api.version>1.7.21</slf4j-api.version>

@@ -1,7 +1,7 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>more-lambdas-jdk9</artifactId>
+    <artifactId>more-lambdas-jdk8-test</artifactId>
     <version>0.1.31-SNAPSHOT</version>
 
     <parent>
@@ -10,14 +10,10 @@
         <version>0.1.31-SNAPSHOT</version>
     </parent>
 
-    <properties>
-        <jdk.version>1.9</jdk.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.github.phantomthief</groupId>
-            <artifactId>more-lambdas</artifactId>
+            <artifactId>more-lambdas-jdk9</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>

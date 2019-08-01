@@ -66,4 +66,8 @@ public class MoreReflection {
     public static StackTraceElement getCallerPlace(Class<?> locationAwareClass) {
         return STACK_TRACE_PROVIDER.getCallerPlace(locationAwareClass);
     }
+
+    static StackTraceProvider getStackTraceProvider() {
+        return STACK_TRACE_PROVIDER;
+    }
 }

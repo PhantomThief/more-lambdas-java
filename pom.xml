@@ -6,7 +6,6 @@
     <packaging>pom</packaging>
 
     <properties>
-        <revision>0.1.31</revision>
         <jdk.version>1.8</jdk.version>
 
         <slf4j-api.version>1.7.21</slf4j-api.version>
@@ -77,12 +76,12 @@
             <dependency>
                 <groupId>com.github.phantomthief</groupId>
                 <artifactId>more-lambdas</artifactId>
-                <version>${revision}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.phantomthief</groupId>
                 <artifactId>more-lambdas-jdk9</artifactId>
-                <version>${revision}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>

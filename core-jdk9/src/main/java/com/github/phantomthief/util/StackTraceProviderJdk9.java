@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
  * @author w.vela
  * Created on 2019-07-31.
  */
-public class StackTraceProviderJdk9 implements StackTraceProvider{
+public class StackTraceProviderJdk9 implements StackTraceProvider {
 
     private final StackWalker stackWalker = StackWalker.getInstance(RETAIN_CLASS_REFERENCE);
 

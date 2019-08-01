@@ -60,6 +60,7 @@
     <modules>
         <module>core</module>
         <module>core-jdk9</module>
+        <module>core-jdk8-test</module>
     </modules>
 
     <dependencyManagement>
@@ -75,6 +76,11 @@
             <dependency>
                 <groupId>com.github.phantomthief</groupId>
                 <artifactId>more-lambdas</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.phantomthief</groupId>
+                <artifactId>more-lambdas-jdk9</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

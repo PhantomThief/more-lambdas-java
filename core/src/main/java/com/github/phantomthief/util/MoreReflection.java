@@ -35,13 +35,14 @@ public class MoreReflection {
                 temp = iterator.next();
             }
         } catch (Throwable e) {
-            temp = new StackTraceProviderJdk8();
+            logger.warn("failed to use jdk9's [JEP 259: Stack-Walking API] as caller tracker. exception:{}",
+                    e.toString());
         }
         if (temp == null) {
             temp = new StackTraceProviderJdk8();
         }
         STACK_TRACE_PROVIDER = temp;
-        logger.info("using [{}] as caller track implements", STACK_TRACE_PROVIDER.getClass().getName());
+        logger.info("using [{}] as caller tracker implementation.", STACK_TRACE_PROVIDER.getClass().getName());
     }
 
     /**

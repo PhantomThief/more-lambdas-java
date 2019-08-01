@@ -121,7 +121,7 @@ public class MoreFutures {
      *  // a fail-fast example
      *  List<Future<User>> list = doSomeAsyncTasks();
      *  // don't try/catch the exception it throws.
-     *  Map<Future<User>, User> success; = tryWait(list, 1, SECONDS);
+     *  Map<Future<User>, User> success = tryWait(list, 1, SECONDS);
      * </pre>}
      *
      * @throws TryWaitUncheckedException if not all calls are successful.

@@ -22,6 +22,8 @@
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-source-plugin.version>3.1.0</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
+        <git-commit-id-plugin.version>2.2.6</git-commit-id-plugin.version>
+        <maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
 
         <kotlin.compiler.incremental>false</kotlin.compiler.incremental>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
@@ -276,6 +278,56 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>${git-commit-id-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <verbose>false</verbose>
+                    <abbrevLength>8</abbrevLength>
+                    <dateFormat>yyyyMMddHHmmssSSS</dateFormat>
+                    <failOnNoGitDirectory>false</failOnNoGitDirectory>
+                    <failOnUnableToExtractRepoInfo>false</failOnUnableToExtractRepoInfo>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <gitDescribe>
+                        <skip>true</skip>
+                    </gitDescribe>
+                    <includeOnlyProperties>
+                        <include>git.branch</include>
+                        <include>git.build</include>
+                        <include>git.commit.id</include>
+                        <include>git.commit.time</include>
+                        <include>git.commit.user</include>
+                        <include>git.remote.origin.url</include>
+                    </includeOnlyProperties>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                        <manifestEntries>
+                            <Implementation-Build>${git.commit.id}</Implementation-Build>
+                            <Implementation-Timestamp>${git.build.time}</Implementation-Timestamp>
+                            <Implementation-Branch>${git.branch}</Implementation-Branch>
+                            <Java-Compiler-JvmTarget>${java.version}</Java-Compiler-JvmTarget>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
     </build>

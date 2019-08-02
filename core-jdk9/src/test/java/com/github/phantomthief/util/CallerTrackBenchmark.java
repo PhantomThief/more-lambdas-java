@@ -17,10 +17,10 @@ import org.openjdk.jmh.annotations.Warmup;
 
 /**
  * 性能指标：
- * <p>
- * Benchmark                       Mode  Cnt       Score        Error  Units
- * CallerTrackBenchmark.testJdk8  thrpt    5   59081.301 ±  33148.476  ops/s
- * CallerTrackBenchmark.testJdk9  thrpt    5  329034.388 ± 443312.075  ops/s
+ *
+ * Benchmark                       Mode  Cnt       Score       Error  Units
+ * CallerTrackBenchmark.testJdk8  thrpt    5   72923.309 ± 13467.724  ops/s
+ * CallerTrackBenchmark.testJdk9  thrpt    5  284676.512 ± 61074.040  ops/s
  *
  * @author w.vela
  * Created on 2019-08-01.

@@ -1,10 +1,5 @@
 package com.github.phantomthief.util;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.Thread.currentThread;
-
-import java.util.List;
-
 import javax.annotation.Nullable;
 
 /**
@@ -16,22 +11,24 @@ class StackTraceProviderJdk8 implements StackTraceProvider {
     @Nullable
     @Override
     public StackTraceElement getCallerPlace(Class<?> locationAwareClass) {
-        List<StackTraceElement> stackTrace = newArrayList(currentThread().getStackTrace());
+        String locationAwareClassName = locationAwareClass.getName();
+
         boolean afterSelf = false;
         boolean afterDeprecated = false;
         String deprecatedClass = null;
-        for (StackTraceElement stack : stackTrace) {
-            if (stack.getClassName().equals(locationAwareClass.getName())) {
+        // 之所以用异常获取而不是Thread.currentThread().getStackTrace()，是因为它内部实现其实也是判断当前线程了
+        for (StackTraceElement stack : (new Exception()).getStackTrace()) {
+            String stackClassName = stack.getClassName();
+            if (stackClassName.equals(locationAwareClassName)) {
                 afterSelf = true;
                 continue;
             }
             if (afterSelf) {
-                if (deprecatedClass == null
-                        && !stack.getClassName().equals(locationAwareClass.getName())) {
-                    deprecatedClass = stack.getClassName();
+                if (deprecatedClass == null) {
+                    deprecatedClass = stackClassName;
                 }
             }
-            if (stack.getClassName().equals(deprecatedClass)) {
+            if (stackClassName.equals(deprecatedClass)) {
                 afterDeprecated = true;
                 continue;
             }

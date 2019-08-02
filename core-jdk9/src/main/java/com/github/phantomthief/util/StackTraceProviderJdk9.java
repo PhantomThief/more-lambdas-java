@@ -30,24 +30,24 @@ public class StackTraceProviderJdk9 implements StackTraceProvider {
             public StackTraceElement apply(Stream<StackFrame> stream) {
                 return stream
                         .filter(stack -> {
-                            if (stack.getDeclaringClass() == locationAwareClass) {
+                            Class<?> declaringClass = stack.getDeclaringClass();
+                            if (declaringClass == locationAwareClass) {
                                 afterSelf = true;
                                 return false;
                             }
                             if (afterSelf) {
-                                if (deprecatedClass == null
-                                        && stack.getDeclaringClass() != locationAwareClass) {
-                                    deprecatedClass = stack.getDeclaringClass();
+                                if (deprecatedClass == null) {
+                                    deprecatedClass = declaringClass;
                                 }
                             }
-                            if (stack.getDeclaringClass() == deprecatedClass) {
+                            if (declaringClass == deprecatedClass) {
                                 afterDeprecated = true;
                                 return false;
                             }
                             return afterDeprecated;
                         })
+                        .findAny()
                         .map(StackFrame::toStackTraceElement)
-                        .findFirst()
                         .orElse(null);
             }
         });

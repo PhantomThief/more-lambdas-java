@@ -34,9 +34,10 @@ public class MoreReflection {
             if (iterator.hasNext()) {
                 temp = iterator.next();
             }
+        } catch (UnsupportedClassVersionError e) {
+            logger.info("failed to use jdk9's [JEP 259: Stack-Walking API] as caller tracker.");
         } catch (Throwable e) {
-            logger.warn("failed to use jdk9's [JEP 259: Stack-Walking API] as caller tracker. exception:{}",
-                    e.toString());
+            logger.warn("failed to use jdk9's [JEP 259: Stack-Walking API] as caller tracker.", e);
         }
         if (temp == null) {
             temp = new StackTraceProviderJdk8();

@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,10 +29,13 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.phantomthief.util.ThrowableConsumer;
 import com.github.phantomthief.util.ThrowableFunction;
 import com.github.phantomthief.util.ThrowableRunnable;
 import com.google.common.util.concurrent.AbstractFuture;
 import com.google.common.util.concurrent.ExecutionError;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.common.util.concurrent.UncheckedTimeoutException;
 
@@ -279,6 +283,36 @@ public class MoreFutures {
             }
             return delay.get();
         });
+    }
+
+    /**
+     * 用于替换 {@link Futures#transform(ListenableFuture, com.google.common.base.Function, Executor)}
+     * <p>
+     * 主要提供两个额外的功能:
+     * 1. API使用jdk8
+     * 2. 提供了 {@link TimeoutListenableFuture} 的支持（保持Listener不会丢）
+     */
+    public static <I, O> ListenableFuture<O> transform(ListenableFuture<I> input,
+            Function<? super I, ? extends O> function, Executor executor) {
+        @SuppressWarnings("Guava")
+        com.google.common.base.Function<? super I, ? extends O> realFunc;
+        if (function instanceof com.google.common.base.Function) {
+            //noinspection unchecked
+            realFunc = (com.google.common.base.Function) function;
+        } else {
+            realFunc = function::apply;
+        }
+        ListenableFuture<O> result = Futures.transform(input, realFunc, executor);
+        if (input instanceof TimeoutListenableFuture) {
+            TimeoutListenableFuture<O> newResult = new TimeoutListenableFuture<>(result);
+            for (ThrowableConsumer<TimeoutException, Exception> timeoutListener : ((TimeoutListenableFuture<I>) input)
+                    .getTimeoutListeners()) {
+                newResult.addTimeoutListener(timeoutListener);
+            }
+            return newResult;
+        } else {
+            return result;
+        }
     }
 
     public interface Scheduled {

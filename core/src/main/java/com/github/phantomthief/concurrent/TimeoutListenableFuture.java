@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -77,5 +78,9 @@ public class TimeoutListenableFuture<V> extends ForwardingListenableFuture<V> {
             }
             throw e;
         }
+    }
+
+    public List<ThrowableConsumer<TimeoutException, Exception>> getTimeoutListeners() {
+        return Collections.unmodifiableList(timeoutListeners);
     }
 }

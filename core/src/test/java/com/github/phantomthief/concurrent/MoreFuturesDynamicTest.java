@@ -1,11 +1,13 @@
 package com.github.phantomthief.concurrent;
 
 import static com.github.phantomthief.concurrent.MoreFutures.scheduleWithDynamicDelay;
+import static com.google.common.util.concurrent.MoreExecutors.shutdownAndAwaitTermination;
 import static com.google.common.util.concurrent.Uninterruptibles.sleepUninterruptibly;
 import static java.time.Duration.ofSeconds;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.util.concurrent.Future;
@@ -43,5 +45,6 @@ class MoreFuturesDynamicTest {
         future.cancel(false);
         sleepUninterruptibly(5, SECONDS);
         assertEquals(3, run[0]);
+        assertTrue(shutdownAndAwaitTermination(scheduled, 1, SECONDS));
     }
 }

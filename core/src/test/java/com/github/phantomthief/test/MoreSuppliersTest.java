@@ -9,6 +9,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
@@ -54,7 +55,7 @@ class MoreSuppliersTest {
         CloseableSupplier<Integer> lazy = lazy(() -> new Random().nextInt(1000));
         Integer first = lazy.get();
         Integer second = lazy.get();
-        assertEquals(first, second);
+        assertSame(first, second);
     }
 
     @Test
@@ -93,7 +94,7 @@ class MoreSuppliersTest {
         CloseableThrowableSupplier<Integer, RuntimeException> lazy = lazyEx(() -> new Random().nextInt(1000));
         Integer first = lazy.get();
         Integer second = lazy.get();
-        assertEquals(first, second);
+        assertSame(first, second);
     }
 
     @Test

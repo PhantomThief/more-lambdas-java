@@ -26,6 +26,19 @@ public final class MoreSuppliers {
         }
     }
 
+    public static <T, X extends Throwable> CloseableThrowableSupplier<T, X> lazyEx(ThrowableSupplier<T, X> delegate) {
+        return lazyEx(delegate, true);
+    }
+
+    public static <T, X extends Throwable> CloseableThrowableSupplier<T, X> lazyEx(ThrowableSupplier<T, X> delegate,
+            boolean resetAfterClose) {
+        if (delegate instanceof CloseableThrowableSupplier) {
+            return (CloseableThrowableSupplier<T, X>) delegate;
+        } else {
+            return new CloseableThrowableSupplier<>(checkNotNull(delegate), resetAfterClose);
+        }
+    }
+
     public static <T> Supplier<T> asyncLazy(Supplier<T> delegate, Supplier<T> pendingSupplier,
             String threadName) {
         return new AsyncSupplier<>(delegate, pendingSupplier, threadName);
@@ -90,7 +103,7 @@ public final class MoreSuppliers {
         }
 
         public void tryClose() {
-            tryClose(i -> {});
+            tryClose(i -> { });
         }
 
         public <X extends Throwable> void tryClose(ThrowableConsumer<T, X> close) throws X {
@@ -108,6 +121,87 @@ public final class MoreSuppliers {
         public String toString() {
             if (initialized) {
                 return "MoreSuppliers.lazy(" + get() + ")";
+            } else {
+                return "MoreSuppliers.lazy(" + this.delegate + ")";
+            }
+        }
+    }
+
+
+    public static class CloseableThrowableSupplier<T, X extends Throwable>
+            implements ThrowableSupplier<T, X>, Serializable {
+
+        private static final long serialVersionUID = 0L;
+        private final ThrowableSupplier<T, X> delegate;
+        private final boolean resetAfterClose;
+        private volatile transient boolean initialized;
+        private transient T value;
+
+        private CloseableThrowableSupplier(ThrowableSupplier<T, X> delegate, boolean resetAfterClose) {
+            this.delegate = delegate;
+            this.resetAfterClose = resetAfterClose;
+        }
+
+        public T get() throws X {
+            if (!(this.initialized)) {
+                synchronized (this) {
+                    if (!(this.initialized)) {
+                        T t = this.delegate.get();
+                        this.value = t;
+                        this.initialized = true;
+                        return t;
+                    }
+                }
+            }
+            return this.value;
+        }
+
+        public boolean isInitialized() {
+            return initialized;
+        }
+
+        public <X2 extends Throwable> void ifPresent(ThrowableConsumer<T, X2> consumer) throws X2 {
+            synchronized (this) {
+                if (initialized && this.value != null) {
+                    consumer.accept(this.value);
+                }
+            }
+        }
+
+        public <U> Optional<U> map(Function<? super T, ? extends U> mapper) {
+            checkNotNull(mapper);
+            synchronized (this) {
+                if (initialized && this.value != null) {
+                    return ofNullable(mapper.apply(value));
+                } else {
+                    return empty();
+                }
+            }
+        }
+
+        public void tryClose() {
+            tryClose(i -> { });
+        }
+
+        public <X2 extends Throwable> void tryClose(ThrowableConsumer<T, X2> close) throws X2 {
+            synchronized (this) {
+                if (initialized) {
+                    close.accept(value);
+                    if (resetAfterClose) {
+                        this.value = null;
+                        initialized = false;
+                    }
+                }
+            }
+        }
+
+        public String toString() {
+            if (initialized) {
+                try {
+                    return "MoreSuppliers.lazy(" + get() + ")";
+                } catch (Throwable x) {
+                    throw new RuntimeException(x);
+                }
             } else {
                 return "MoreSuppliers.lazy(" + this.delegate + ")";
             }

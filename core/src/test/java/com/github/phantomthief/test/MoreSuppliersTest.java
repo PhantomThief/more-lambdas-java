@@ -2,20 +2,24 @@ package com.github.phantomthief.test;
 
 import static com.github.phantomthief.util.MoreSuppliers.asyncLazy;
 import static com.github.phantomthief.util.MoreSuppliers.lazy;
+import static com.github.phantomthief.util.MoreSuppliers.lazyEx;
 import static com.google.common.util.concurrent.Uninterruptibles.sleepUninterruptibly;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.IOException;
 import java.util.Random;
 import java.util.function.Supplier;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.github.phantomthief.util.MoreSuppliers.CloseableSupplier;
+import com.github.phantomthief.util.MoreSuppliers.CloseableThrowableSupplier;
 
 /**
  * @author w.vela
@@ -26,7 +30,7 @@ class MoreSuppliersTest {
     void test() {
         CloseableSupplier<Integer> lazy = lazy(() -> {
             System.out.println("start init...");
-            sleepUninterruptibly(10, SECONDS);
+            sleepUninterruptibly(3, SECONDS);
             int nextInt = new Random().nextInt(1000);
             System.out.println("init result:" + nextInt);
             return nextInt;
@@ -42,7 +46,7 @@ class MoreSuppliersTest {
         sleepUninterruptibly(500, MILLISECONDS);
         Integer second = lazy.get();
         System.out.println("second get:" + second);
-        assertTrue(first != second);
+        assertNotSame(first, second);
     }
 
     @Test
@@ -50,7 +54,7 @@ class MoreSuppliersTest {
         CloseableSupplier<Integer> lazy = lazy(() -> new Random().nextInt(1000));
         Integer first = lazy.get();
         Integer second = lazy.get();
-        assertTrue(first == second);
+        assertEquals(first, second);
     }
 
     @Test
@@ -62,10 +66,57 @@ class MoreSuppliersTest {
     }
 
     @Test
+    void testEx() {
+        CloseableThrowableSupplier<Integer, RuntimeException> lazy = lazyEx(() -> {
+            System.out.println("start init...");
+            sleepUninterruptibly(3, SECONDS);
+            int nextInt = new Random().nextInt(1000);
+            System.out.println("init result:" + nextInt);
+            return nextInt;
+        });
+        new Thread(() -> {
+            sleepUninterruptibly(1, SECONDS);
+            lazy.tryClose(t -> {
+                System.out.println("closeing t:" + t);
+            });
+        }).start();
+        Integer first = lazy.get();
+        System.out.println("first get:" + first);
+        sleepUninterruptibly(500, MILLISECONDS);
+        Integer second = lazy.get();
+        System.out.println("second get:" + second);
+        assertNotSame(first, second);
+    }
+
+    @Test
+    void testEx2() {
+        CloseableThrowableSupplier<Integer, RuntimeException> lazy = lazyEx(() -> new Random().nextInt(1000));
+        Integer first = lazy.get();
+        Integer second = lazy.get();
+        assertEquals(first, second);
+    }
+
+    @Test
+    void testEx3() {
+        CloseableThrowableSupplier<Integer, RuntimeException> lazy = lazyEx(() -> new Random().nextInt(1000));
+        lazy.tryClose(t -> {
+            fail("failed.");
+        });
+    }
+
+    @Test
+    void testExError() {
+        CloseableThrowableSupplier<Integer, IOException> lazy = lazyEx(() -> {
+            throw new IOException("io error");
+        });
+        Assertions.assertThrows(IOException.class, lazy::get);
+    }
+
+    @Test
     void asyncTest() {
         Supplier<String> supplier = asyncLazy(() -> {
             System.out.println("initing...");
-            sleepUninterruptibly(5, SECONDS);
+            sleepUninterruptibly(3, SECONDS);
             System.out.println("inited.");
             return "test";
         });
@@ -83,14 +134,14 @@ class MoreSuppliersTest {
 
     @Test
     void asyncTestFailed() {
-        int[] initTimes = { 0 };
+        int[] initTimes = {0};
         Supplier<String> supplier = asyncLazy(() -> {
             if (initTimes[0]++ <= 0) {
                 System.out.println("failed");
                 throw new RuntimeException("fail first time.");
             }
             System.out.println("initing...");
-            sleepUninterruptibly(5, SECONDS);
+            sleepUninterruptibly(3, SECONDS);
             System.out.println("inited.");
             return "test";
         });

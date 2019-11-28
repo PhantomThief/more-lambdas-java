@@ -1,7 +1,6 @@
 package com.github.phantomthief.util;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.util.concurrent.RateLimiter.create;
 
 import java.util.Iterator;
 import java.util.ServiceLoader;
@@ -12,8 +11,6 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.util.concurrent.RateLimiter;
-
 /**
  * @author w.vela
  * Created on 2018-06-13.
@@ -22,7 +19,7 @@ public class MoreReflection {
 
     private static final Logger logger = LoggerFactory.getLogger(MoreReflection.class);
 
-    private static final RateLimiter RATE_LIMITER = create(1);
+    private static final SimpleRateLimiter RATE_LIMITER = SimpleRateLimiter.create(1);
 
     private static final StackTraceProvider STACK_TRACE_PROVIDER;
 

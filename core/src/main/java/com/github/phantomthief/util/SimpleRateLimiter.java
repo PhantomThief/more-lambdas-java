@@ -52,6 +52,10 @@ public class SimpleRateLimiter {
         this.allowTimesPerNanos = thisPeriod;
     }
 
+    long getAllowTimesPerNanos() {
+        return allowTimesPerNanos;
+    }
+
     public boolean tryAcquire() {
         long nanoTime = System.nanoTime();
         if (nanoTime >= lastAcquiredNanos + allowTimesPerNanos) {

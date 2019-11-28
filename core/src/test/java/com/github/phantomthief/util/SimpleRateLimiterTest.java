@@ -1,9 +1,12 @@
 package com.github.phantomthief.util;
 
 import static com.google.common.util.concurrent.Uninterruptibles.sleepUninterruptibly;
+import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -56,5 +59,14 @@ class SimpleRateLimiterTest {
             }
         }
         assertEquals(4, j);
+    }
+
+    @Test
+    void test4() {
+        double permitsPerSecond = 1.0 / 3600.0; // report at most 1 log in an hour
+        SimpleRateLimiter limiter = SimpleRateLimiter.create(permitsPerSecond);
+        assertTrue(limiter.tryAcquire());
+        assertFalse(limiter.tryAcquire());
+        assertEquals(HOURS.toNanos(1), limiter.getAllowTimesPerNanos());
     }
 }

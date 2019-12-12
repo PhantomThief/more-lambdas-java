@@ -4,12 +4,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Iterator;
 import java.util.ServiceLoader;
+import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Predicates;
 
 /**
  * @author w.vela
@@ -63,12 +66,14 @@ public class MoreReflection {
 
     @Nullable
     public static StackTraceElement getCallerPlace(Class<?> locationAwareClass) {
-        return STACK_TRACE_PROVIDER.getCallerPlace(locationAwareClass);
+        String name = locationAwareClass.getName();
+        return STACK_TRACE_PROVIDER.getCallerPlace(name::equals, Predicates.alwaysFalse());
     }
 
     @Nullable
-    public static StackTraceElement getCallerPlaceEx(Class<?>... locationAwareClass) {
-        return STACK_TRACE_PROVIDER.getCallerPlace(locationAwareClass);
+    public static StackTraceElement getCallerPlaceEx(@Nonnull Predicate<String> locationAwareClass,
+            @Nonnull Predicate<String> ignore) {
+        return STACK_TRACE_PROVIDER.getCallerPlace(checkNotNull(locationAwareClass), checkNotNull(ignore));
     }
 
     static StackTraceProvider getStackTraceProvider() {

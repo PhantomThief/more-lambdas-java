@@ -3,6 +3,7 @@ package com.github.phantomthief.util;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
@@ -14,16 +15,14 @@ class StackTraceProviderJdk8 implements StackTraceProvider {
 
     @Nullable
     @Override
-    public StackTraceElement getCallerPlace(Class<?>... locationAwareClasses) {
-        Set<String> locationAwareClassNames = toString(locationAwareClasses);
-
+    public StackTraceElement getCallerPlace(Predicate<String> locationAwareClassChecker, Predicate<String> ignore) {
         boolean afterSelf = false;
         boolean afterDeprecated = false;
         String deprecatedClass = null;
         // 之所以用异常获取而不是Thread.currentThread().getStackTrace()，是因为它内部实现其实也是判断当前线程了
         for (StackTraceElement stack : (new Exception()).getStackTrace()) {
             String stackClassName = stack.getClassName();
-            if (locationAwareClassNames.contains(stackClassName)) {
+            if (locationAwareClassChecker.test(stackClassName)) {
                 afterSelf = true;
                 continue;
             }
@@ -37,6 +36,9 @@ class StackTraceProviderJdk8 implements StackTraceProvider {
                 continue;
             }
             if (afterDeprecated) {
+                if (ignore.test(stackClassName)) {
+                    continue;
+                }
                 return stack;
             }
         }

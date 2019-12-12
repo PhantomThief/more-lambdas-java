@@ -40,12 +40,12 @@ class JdkProviderMultiClassTest {
 
         @Deprecated
         static StackTraceElement chain81() {
-            return jdk8.getCallerPlace(MyTest.class, MyTest5.class);
+            return jdk8.getCallerPlace(it -> it.equals(MyTest.class.getName()), it -> it.contains("MyTest"));
         }
 
         @Deprecated
         static StackTraceElement chain91() {
-            return jdk9.getCallerPlace(MyTest.class, MyTest5.class);
+            return jdk9.getCallerPlace(it -> it.equals(MyTest.class.getName()), it -> it.contains("MyTest"));
         }
     }
 

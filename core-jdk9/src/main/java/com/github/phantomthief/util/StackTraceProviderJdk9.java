@@ -4,6 +4,7 @@ import static java.lang.StackWalker.Option.RETAIN_CLASS_REFERENCE;
 
 import java.lang.StackWalker.StackFrame;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
@@ -19,28 +20,19 @@ public class StackTraceProviderJdk9 implements StackTraceProvider {
     private final StackWalker stackWalker = StackWalker.getInstance(RETAIN_CLASS_REFERENCE);
 
     @Nullable
-    public StackTraceElement getCallerPlace(Class<?>... locationAwareClasses) {
+    public StackTraceElement getCallerPlace(Predicate<String> locationAwareClassChecker, Predicate<String> ignore) {
         return stackWalker.walk(new Function<Stream<StackFrame>, StackTraceElement>() {
 
             private boolean afterSelf = false;
             private boolean afterDeprecated = false;
             private Class<?> deprecatedClass = null;
 
-            private boolean contains(Class<?> type) {
-                for (Class<?> locationAwareClass : locationAwareClasses) {
-                    if (type == locationAwareClass) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-
             @Override
             public StackTraceElement apply(Stream<StackFrame> stream) {
                 return stream
                         .filter(stack -> {
                             Class<?> declaringClass = stack.getDeclaringClass();
-                            if (contains(declaringClass)) {
+                            if (locationAwareClassChecker.test(declaringClass.getName())) {
                                 afterSelf = true;
                                 return false;
                             }
@@ -51,6 +43,9 @@ public class StackTraceProviderJdk9 implements StackTraceProvider {
                             }
                             if (declaringClass == deprecatedClass) {
                                 afterDeprecated = true;
+                                return false;
+                            }
+                            if (ignore.test(declaringClass.getName())) {
                                 return false;
                             }
                             return afterDeprecated;

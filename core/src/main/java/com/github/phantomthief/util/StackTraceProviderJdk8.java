@@ -1,5 +1,9 @@
 package com.github.phantomthief.util;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.annotation.Nullable;
 
 /**
@@ -10,8 +14,8 @@ class StackTraceProviderJdk8 implements StackTraceProvider {
 
     @Nullable
     @Override
-    public StackTraceElement getCallerPlace(Class<?> locationAwareClass) {
-        String locationAwareClassName = locationAwareClass.getName();
+    public StackTraceElement getCallerPlace(Class<?>... locationAwareClasses) {
+        Set<String> locationAwareClassNames = toString(locationAwareClasses);
 
         boolean afterSelf = false;
         boolean afterDeprecated = false;
@@ -19,7 +23,7 @@ class StackTraceProviderJdk8 implements StackTraceProvider {
         // 之所以用异常获取而不是Thread.currentThread().getStackTrace()，是因为它内部实现其实也是判断当前线程了
         for (StackTraceElement stack : (new Exception()).getStackTrace()) {
             String stackClassName = stack.getClassName();
-            if (stackClassName.equals(locationAwareClassName)) {
+            if (locationAwareClassNames.contains(stackClassName)) {
                 afterSelf = true;
                 continue;
             }
@@ -37,5 +41,17 @@ class StackTraceProviderJdk8 implements StackTraceProvider {
             }
         }
         return null;
+    }
+
+    private Set<String> toString(Class<?>[] locationAwareClasses) {
+        int length = locationAwareClasses.length;
+        if (length == 1) { // optimize
+            return Collections.singleton(locationAwareClasses[0].getName());
+        }
+        Set<String> result = new HashSet<>(length);
+        for (Class<?> locationAwareClass : locationAwareClasses) {
+            result.add(locationAwareClass.getName());
+        }
+        return result;
     }
 }

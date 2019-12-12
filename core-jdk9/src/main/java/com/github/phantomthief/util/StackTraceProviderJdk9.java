@@ -19,19 +19,28 @@ public class StackTraceProviderJdk9 implements StackTraceProvider {
     private final StackWalker stackWalker = StackWalker.getInstance(RETAIN_CLASS_REFERENCE);
 
     @Nullable
-    public StackTraceElement getCallerPlace(Class<?> locationAwareClass) {
+    public StackTraceElement getCallerPlace(Class<?>... locationAwareClasses) {
         return stackWalker.walk(new Function<Stream<StackFrame>, StackTraceElement>() {
 
             private boolean afterSelf = false;
             private boolean afterDeprecated = false;
             private Class<?> deprecatedClass = null;
 
+            private boolean contains(Class<?> type) {
+                for (Class<?> locationAwareClass : locationAwareClasses) {
+                    if (type == locationAwareClass) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
             @Override
             public StackTraceElement apply(Stream<StackFrame> stream) {
                 return stream
                         .filter(stack -> {
                             Class<?> declaringClass = stack.getDeclaringClass();
-                            if (declaringClass == locationAwareClass) {
+                            if (contains(declaringClass)) {
                                 afterSelf = true;
                                 return false;
                             }

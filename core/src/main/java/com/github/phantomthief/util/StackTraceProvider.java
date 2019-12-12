@@ -8,6 +8,9 @@ import javax.annotation.Nullable;
  */
 interface StackTraceProvider {
 
+    /**
+     * 返回 {@param locationAwareClasses} 最接近调用方方向第二个元素（跳过一个）
+     */
     @Nullable
-    StackTraceElement getCallerPlace(Class<?> locationAwareClass);
+    StackTraceElement getCallerPlace(Class<?>... locationAwareClasses);
 }

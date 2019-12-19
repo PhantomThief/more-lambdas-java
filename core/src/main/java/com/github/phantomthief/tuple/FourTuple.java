@@ -2,7 +2,7 @@ package com.github.phantomthief.tuple;
 
 /**
  * 大家尽量不要用到这个类哦，很蛋疼了。
- * 
+ *
  * @author w.vela
  */
 public final class FourTuple<A, B, C, D> extends ThreeTuple<A, B, C> {

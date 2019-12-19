@@ -1,7 +1,6 @@
 package com.github.phantomthief.util;
 
 /**
- * 
  * @author w.vela
  */
 @FunctionalInterface

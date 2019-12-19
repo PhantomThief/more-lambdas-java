@@ -11,6 +11,7 @@ import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
@@ -69,7 +70,7 @@ class DeadlineCheckerTest {
             });
         }
         shutdownAndAwaitTermination(executor, 1, DAYS);
-        assertTrue(!slowed.isEmpty());
+        assertFalse(slowed.isEmpty());
         slowed.forEach(slow -> assertTrue(slow < 5));
         assertTrue(helper.getRunning().isEmpty());
     }

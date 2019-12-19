@@ -2,8 +2,6 @@ package com.github.phantomthief.tuple;
 
 /**
  * @author w.vela
- * 
- *         多元组的工厂方法
  */
 public final class Tuple {
 

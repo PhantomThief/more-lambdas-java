@@ -21,7 +21,7 @@ public class StackTraceProviderJdk9 implements StackTraceProvider {
 
     @Nullable
     public StackTraceElement getCallerPlace(Predicate<String> locationAwareClassChecker, Predicate<String> ignore) {
-        return stackWalker.walk(new Function<Stream<StackFrame>, StackTraceElement>() {
+        return stackWalker.walk(new Function<>() {
 
             private boolean afterSelf = false;
             private boolean afterDeprecated = false;

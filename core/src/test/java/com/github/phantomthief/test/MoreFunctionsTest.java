@@ -8,6 +8,8 @@ import static com.github.phantomthief.util.MoreFunctions.runParallel;
 import static com.github.phantomthief.util.MoreFunctions.runWithThreadName;
 import static com.github.phantomthief.util.MoreFunctions.throwing;
 import static java.util.stream.Collectors.toList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -29,9 +31,9 @@ class MoreFunctionsTest {
 
     @Test
     void testTrying() {
-        assertTrue(catching(i -> function(i, Exception::new), 1) == null);
-        assertTrue(catching(i -> function(i, IllegalArgumentException::new), 1) == null);
-        assertTrue(catching(i -> function(i, null), 1).equals("1"));
+        assertNull(catching(i -> function(i, Exception::new), 1));
+        assertNull(catching(i -> function(i, IllegalArgumentException::new), 1));
+        assertEquals("1", catching(i -> function(i, null), 1));
     }
 
     @Test

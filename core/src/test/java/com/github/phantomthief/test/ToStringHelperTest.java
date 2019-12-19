@@ -1,5 +1,6 @@
 package com.github.phantomthief.test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
@@ -22,6 +23,6 @@ class ToStringHelperTest {
         String ori = list.toString();
         List<Integer> list2 = ToStringHelper.wrapToString(List.class, list, i -> i + "!!!!");
         String newToString = list2.toString();
-        assertTrue(Objects.equals(ori + "!!!!", newToString));
+        assertEquals(ori + "!!!!", newToString);
     }
 }

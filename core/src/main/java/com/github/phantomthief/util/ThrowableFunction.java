@@ -3,7 +3,6 @@ package com.github.phantomthief.util;
 import static java.util.Objects.requireNonNull;
 
 /**
- * 
  * @author w.vela
  */
 @FunctionalInterface

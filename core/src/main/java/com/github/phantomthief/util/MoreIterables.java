@@ -55,9 +55,8 @@ public final class MoreIterables {
         boolean reversed = from > to;
         return () -> new Iterator<Range<Long>>() {
 
-            private Range<Long> current = reversed ? // 
-            Range.closed((max(from - batch, to) + 1), from) : // 
-            Range.closed(from, min(batch + from, to) - 1);
+            private Range<Long> current = reversed ? Range.closed((max(from - batch, to) + 1), from)
+                                                   : Range.closed(from, min(batch + from, to) - 1);
 
             @Override
             public boolean hasNext() {

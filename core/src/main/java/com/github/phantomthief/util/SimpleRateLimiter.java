@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.time.Duration;
+import java.util.concurrent.atomic.LongAdder;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -17,6 +18,8 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public class SimpleRateLimiter {
+
+    private final LongAdder skip = new LongAdder();
 
     /**
      * 多少ns允许一次请求
@@ -66,6 +69,11 @@ public class SimpleRateLimiter {
                 }
             }
         }
+        skip.increment();
         return false;
+    }
+
+    public long getSkipCountAndClear() {
+        return skip.sumThenReset();
     }
 }

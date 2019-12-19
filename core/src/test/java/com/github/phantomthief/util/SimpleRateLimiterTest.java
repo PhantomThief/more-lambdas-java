@@ -29,6 +29,8 @@ class SimpleRateLimiterTest {
             }
         }
         assertEquals(10, j);
+        assertEquals(90, limiter.getSkipCountAndClear());
+        assertEquals(0, limiter.getSkipCountAndClear());
     }
 
     @Test
@@ -59,6 +61,8 @@ class SimpleRateLimiterTest {
             }
         }
         assertEquals(4, j);
+        assertEquals(76, limiter.getSkipCountAndClear());
+        assertEquals(0, limiter.getSkipCountAndClear());
     }
 
     @Test

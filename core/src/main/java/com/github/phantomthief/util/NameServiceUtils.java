@@ -15,8 +15,6 @@ import javax.annotation.Nonnull;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.github.phantomthief.tuple.Tuple;
 import com.github.phantomthief.tuple.TwoTuple;
@@ -26,8 +24,6 @@ import com.github.phantomthief.tuple.TwoTuple;
  * Created on 2019-12-25.
  */
 public class NameServiceUtils {
-
-    public static final Logger logger = LoggerFactory.getLogger(UnifiedNameService.class);
 
     static <T, R> R doInvoke(Object object, String method, T it) throws UnknownHostException {
         try {
@@ -96,8 +92,11 @@ public class NameServiceUtils {
                 checkJdk9(nameService9);
                 return new UnifiedNameServiceAdapter(nameService9);
             }
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            // ignore
+        }
 
-            // jdk8
+        try {   // jdk8
             Object nameServices8 = readDeclaredStaticField(InetAddress.class, "nameServices", true);
             if (nameServices8 != null) {
                 TwoTuple<Object, List<Object>> nameService8 = unwrapList(nameServices8);
@@ -141,15 +140,17 @@ public class NameServiceUtils {
             Object nameService = readDeclaredStaticField(InetAddress.class, "nameService", true);
             if (nameService != null) {
                 setNameServiceJdk9(unifiedNameService, nameService);
-                logger.info("add UnifiedNameService to jdk9+ successfully.");
                 return;
             }
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            // ignore
+        }
 
+        try {
             // jdk8
-            nameService = readDeclaredStaticField(InetAddress.class, "nameServices", true);
+            Object nameService = readDeclaredStaticField(InetAddress.class, "nameServices", true);
             if (nameService != null) {
                 setNameServiceJdk8(unifiedNameService, nameService);
-                logger.info("add UnifiedNameService to jdk8 successfully.");
             }
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e);

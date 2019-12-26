@@ -10,12 +10,16 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author w.vela
  * Created on 2019-12-25.
  */
 class UnifiedNameServiceTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(UnifiedNameServiceTest.class);
 
     @Test
     void test() throws IOException {
@@ -27,7 +31,7 @@ class UnifiedNameServiceTest {
             public InetAddress[] lookupAllHostAddr(String host) throws UnknownHostException {
                 InetAddress[] apply = previousNameService.lookupAllHostAddr(host);
                 called[0] = true;
-                NameServiceUtils.logger.info("invoke lookupAllHostAddr:{}=>{}", host, apply);
+                logger.info("invoke lookupAllHostAddr:{}=>{}", host, apply);
                 return apply;
             }
 
@@ -35,7 +39,7 @@ class UnifiedNameServiceTest {
             public String getHostByAddr(byte[] addr) throws UnknownHostException {
                 String apply = previousNameService.getHostByAddr(addr);
                 called[0] = true;
-                NameServiceUtils.logger.info("invoke getHostByAddr:{}=>{}", addr, apply);
+                logger.info("invoke getHostByAddr:{}=>{}", addr, apply);
                 return apply;
             }
         });

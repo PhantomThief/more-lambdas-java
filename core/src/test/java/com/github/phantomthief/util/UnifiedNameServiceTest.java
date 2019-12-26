@@ -1,5 +1,6 @@
 package com.github.phantomthief.util;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -17,25 +18,24 @@ import org.junit.jupiter.api.Test;
 class UnifiedNameServiceTest {
 
     @Test
-    void addNameService() throws IOException {
+    void test() throws IOException {
         boolean[] called = {false};
-        UnifiedNameService.addNameService(new UnifiedNameService() {
+        UnifiedNameService previousNameService = NameServiceUtils.getCurrentNameService();
+        assertNotNull(previousNameService);
+        NameServiceUtils.setNameService(new UnifiedNameService() {
             @Override
-            public InetAddress[] lookupAllHostAddr(
-                    ThrowableFunction<String, InetAddress[], UnknownHostException> origLookupAllHostAddr, String host)
-                    throws UnknownHostException {
-                InetAddress[] apply = origLookupAllHostAddr.apply(host);
+            public InetAddress[] lookupAllHostAddr(String host) throws UnknownHostException {
+                InetAddress[] apply = previousNameService.lookupAllHostAddr(host);
                 called[0] = true;
-                logger.info("invoke lookupAllHostAddr:{}=>{}", host, apply);
+                NameServiceUtils.logger.info("invoke lookupAllHostAddr:{}=>{}", host, apply);
                 return apply;
             }
 
             @Override
-            public String getHostByAddr(ThrowableFunction<byte[], String, UnknownHostException> origGetHostByAddr,
-                    byte[] addr) throws UnknownHostException {
-                String apply = origGetHostByAddr.apply(addr);
+            public String getHostByAddr(byte[] addr) throws UnknownHostException {
+                String apply = previousNameService.getHostByAddr(addr);
                 called[0] = true;
-                logger.info("invoke getHostByAddr:{}=>{}", addr, apply);
+                NameServiceUtils.logger.info("invoke getHostByAddr:{}=>{}", addr, apply);
                 return apply;
             }
         });

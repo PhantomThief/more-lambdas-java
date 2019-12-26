@@ -25,7 +25,7 @@ import com.github.phantomthief.tuple.TwoTuple;
  */
 public class NameServiceUtils {
 
-    static <T, R> R doInvoke(Object object, String method, T it) throws UnknownHostException {
+    private static <T, R> R doInvoke(Object object, String method, T it) throws UnknownHostException {
         try {
             //noinspection unchecked
             return (R) MethodUtils.invokeMethod(object, true, method, it);
@@ -41,7 +41,7 @@ public class NameServiceUtils {
         }
     }
 
-    static TwoTuple<Object, List<Object>> unwrapList(Object object) {
+    private static TwoTuple<Object, List<Object>> unwrapList(Object object) {
         if (object instanceof List) {
             List<Object> list = (List<Object>) object;
             checkState(!list.isEmpty(), "empty nameService in jdk8");
@@ -52,7 +52,8 @@ public class NameServiceUtils {
         }
     }
 
-    static <T> T adapterFromUnifiedNameService(UnifiedNameService unifiedNameService, Class<T> nameServiceInterface) {
+    private static <T> T adapterFromUnifiedNameService(UnifiedNameService unifiedNameService,
+            Class<T> nameServiceInterface) {
         return newProxy(nameServiceInterface, (proxy, method, args) -> {
             String name = method.getName();
             if (name.equals("lookupAllHostAddr")) {
@@ -65,7 +66,7 @@ public class NameServiceUtils {
         });
     }
 
-    static void setNameServiceJdk8(UnifiedNameService unifiedNameService, Object originalNameService0) {
+    private static void setNameServiceJdk8(UnifiedNameService unifiedNameService, Object originalNameService0) {
         TwoTuple<Object, List<Object>> tuple = unwrapList(originalNameService0);
         Object originalNameService = tuple.getFirst();
         List<Object> list = tuple.getSecond();
@@ -74,7 +75,7 @@ public class NameServiceUtils {
         list.set(0, wrappedNameService);
     }
 
-    static void setNameServiceJdk9(UnifiedNameService unifiedNameService, Object originalNameService)
+    private static void setNameServiceJdk9(UnifiedNameService unifiedNameService, Object originalNameService)
             throws IllegalAccessException {
         Class<?> nameServiceInterface = originalNameService.getClass().getInterfaces()[0];
         Object wrappedNameService = adapterFromUnifiedNameService(unifiedNameService, nameServiceInterface);

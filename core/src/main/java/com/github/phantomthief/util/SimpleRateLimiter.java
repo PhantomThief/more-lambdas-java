@@ -61,9 +61,9 @@ public class SimpleRateLimiter {
 
     public boolean tryAcquire() {
         long nanoTime = System.nanoTime();
-        if (nanoTime >= lastAcquiredNanos + allowTimesPerNanos) {
+        if (nanoTime >= lastAcquiredNanos + allowTimesPerNanos || lastAcquiredNanos == 0) {
             synchronized (this) {
-                if (nanoTime >= lastAcquiredNanos + allowTimesPerNanos) {
+                if (nanoTime >= lastAcquiredNanos + allowTimesPerNanos || lastAcquiredNanos == 0) {
                     lastAcquiredNanos = nanoTime;
                     return true;
                 }

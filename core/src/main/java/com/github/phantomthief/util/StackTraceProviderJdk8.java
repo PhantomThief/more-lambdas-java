@@ -7,11 +7,15 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * @author w.vela
  * Created on 2019-08-01.
  */
 class StackTraceProviderJdk8 implements StackTraceProvider {
+
+    static final String[] REFLECTION_PREFIXES = {"sun.reflect.", "java.lang.reflect.", "jdk.internal.reflect."};
 
     @Nullable
     @Override
@@ -22,6 +26,9 @@ class StackTraceProviderJdk8 implements StackTraceProvider {
         // 之所以用异常获取而不是Thread.currentThread().getStackTrace()，是因为它内部实现其实也是判断当前线程了
         for (StackTraceElement stack : (new Exception()).getStackTrace()) {
             String stackClassName = stack.getClassName();
+            if (isReflection(stackClassName)) {
+                continue;
+            }
             if (locationAwareClassChecker.test(stackClassName)) {
                 afterSelf = true;
                 continue;
@@ -43,6 +50,16 @@ class StackTraceProviderJdk8 implements StackTraceProvider {
             }
         }
         return null;
+    }
+
+    /**
+     * at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+     * at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+     * at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+     * at java.lang.reflect.Method.invoke(Method.java:498)
+     */
+    private boolean isReflection(String stackClassName) {
+        return StringUtils.startsWithAny(stackClassName, REFLECTION_PREFIXES);
     }
 
     private Set<String> toString(Class<?>[] locationAwareClasses) {

@@ -1,5 +1,6 @@
 package com.github.phantomthief.util;
 
+import static com.github.phantomthief.util.StackTraceProviderJdk8.REFLECTION_PREFIXES;
 import static java.lang.StackWalker.Option.RETAIN_CLASS_REFERENCE;
 
 import java.lang.StackWalker.StackFrame;
@@ -8,6 +9,8 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * use for jdk9+, for performances.
@@ -31,6 +34,9 @@ public class StackTraceProviderJdk9 implements StackTraceProvider {
             public StackTraceElement apply(Stream<StackFrame> stream) {
                 return stream
                         .filter(stack -> {
+                            if (isReflection(stack.getClassName())) {
+                                return false;
+                            }
                             Class<?> declaringClass = stack.getDeclaringClass();
                             if (locationAwareClassChecker.test(declaringClass.getName())) {
                                 afterSelf = true;
@@ -55,5 +61,15 @@ public class StackTraceProviderJdk9 implements StackTraceProvider {
                         .orElse(null);
             }
         });
+    }
+
+    /**
+     * at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+     * at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+     * at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+     * at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+     */
+    private boolean isReflection(String className) {
+        return StringUtils.startsWithAny(className, REFLECTION_PREFIXES);
     }
 }

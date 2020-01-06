@@ -33,6 +33,7 @@ import com.github.phantomthief.util.ThrowableConsumer;
 import com.github.phantomthief.util.ThrowableFunction;
 import com.github.phantomthief.util.ThrowableRunnable;
 import com.google.common.util.concurrent.AbstractFuture;
+import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.ExecutionError;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -303,6 +304,22 @@ public class MoreFutures {
             realFunc = function::apply;
         }
         ListenableFuture<O> result = Futures.transform(input, realFunc, executor);
+        if (input instanceof TimeoutListenableFuture) {
+            TimeoutListenableFuture<O> newResult = new TimeoutListenableFuture<>(result);
+            for (ThrowableConsumer<TimeoutException, Exception> timeoutListener : ((TimeoutListenableFuture<I>) input)
+                    .getTimeoutListeners()) {
+                newResult.addTimeoutListener(timeoutListener);
+            }
+            return newResult;
+        } else {
+            return result;
+        }
+    }
+
+    public static <I, O> ListenableFuture<O> transformAsync(ListenableFuture<I> input,
+            AsyncFunction<? super I, ? extends O> function,
+            Executor executor) {
+        ListenableFuture<O> result = Futures.transformAsync(input, function, executor);
         if (input instanceof TimeoutListenableFuture) {
             TimeoutListenableFuture<O> newResult = new TimeoutListenableFuture<>(result);
             for (ThrowableConsumer<TimeoutException, Exception> timeoutListener : ((TimeoutListenableFuture<I>) input)

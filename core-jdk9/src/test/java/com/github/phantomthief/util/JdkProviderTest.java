@@ -4,6 +4,9 @@ import static com.github.phantomthief.util.MoreReflection.getCallerPlace;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import org.junit.jupiter.api.Test;
 
 /**
@@ -36,6 +39,24 @@ class JdkProviderTest {
         assertEquals("JdkProviderTest.java", callerPlace.getFileName());
 
         callerPlace = MyTest2.test911();
+        assertNotNull(callerPlace);
+        assertEquals("JdkProviderTest.java", callerPlace.getFileName());
+    }
+
+    @Test
+    void testReflection8() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method test41 = MyTest2.class.getDeclaredMethod("test811");
+        test41.setAccessible(true);
+        StackTraceElement callerPlace = (StackTraceElement) test41.invoke(null);
+        assertNotNull(callerPlace);
+        assertEquals("JdkProviderTest.java", callerPlace.getFileName());
+    }
+
+    @Test
+    void testReflection9() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method test41 = MyTest2.class.getDeclaredMethod("test911");
+        test41.setAccessible(true);
+        StackTraceElement callerPlace = (StackTraceElement) test41.invoke(null);
         assertNotNull(callerPlace);
         assertEquals("JdkProviderTest.java", callerPlace.getFileName());
     }

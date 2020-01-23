@@ -63,6 +63,10 @@ public final class MoreFunctions {
         });
     }
 
+    /**
+     * better use traditional try-catch for readability.
+     */
+    @Deprecated
     public static <R, X extends Throwable> R catching(Callable<R> callable,
             ThrowableConsumer<Throwable, X> exceptionHandler) throws X {
         try {
@@ -84,6 +88,10 @@ public final class MoreFunctions {
         });
     }
 
+    /**
+     * better use traditional try-catch for readability.
+     */
+    @Deprecated
     public static <T, R, X extends Throwable> R catching(
             ThrowableFunction<T, R, Exception> function, T t,
             ThrowableConsumer<Throwable, X> exceptionHandler) throws X {

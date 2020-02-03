@@ -1,5 +1,6 @@
 package com.github.phantomthief.util;
 
+import static com.github.phantomthief.tuple.Tuple.tuple;
 import static org.slf4j.spi.LocationAwareLogger.DEBUG_INT;
 import static org.slf4j.spi.LocationAwareLogger.ERROR_INT;
 import static org.slf4j.spi.LocationAwareLogger.INFO_INT;
@@ -13,6 +14,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 import org.slf4j.spi.LocationAwareLogger;
+
+import com.github.phantomthief.tuple.TwoTuple;
 
 /**
  * 使用 {@link SimpleRateLimiter} 来控制打 log 输出的频率，避免出现 log flood 占用过高的 CPU
@@ -43,7 +46,7 @@ public class RateLogger implements Logger {
 
     private static final double DEFAULT_PERMITS_PER_SECOND = 1;
     // 直接使用Map来cache RateLogger。Logger的数量是有限的，LogBack也是使用了Map来Cache，所以没必要用一个支持evict的Cache。
-    private static final ConcurrentMap<String, RateLogger> CACHE = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<TwoTuple<String, Double>, RateLogger> CACHE = new ConcurrentHashMap<>();
 
     private final Logger logger;
     private final LocationAwareLogger locationAwareLogger;
@@ -77,11 +80,12 @@ public class RateLogger implements Logger {
      */
     public static RateLogger rateLogger(Logger logger, double permitsPer) {
         String name = logger.getName();
-        RateLogger rateLogger = CACHE.get(name);
+        TwoTuple<String, Double> key = tuple(name, permitsPer);
+        RateLogger rateLogger = CACHE.get(key);
         if (rateLogger != null) {
             return rateLogger;
         }
-        return CACHE.computeIfAbsent(name, n -> new RateLogger(logger, permitsPer));
+        return CACHE.computeIfAbsent(key, it -> new RateLogger(logger, it.getSecond()));
     }
 
     private boolean canDo() {

@@ -16,7 +16,7 @@
 
         <junit.version>5.6.0</junit.version>
         <logback-classic.version>1.2.3</logback-classic.version>
-        <jmh.version>1.21</jmh.version>
+        <jmh.version>1.23</jmh.version>
 
         <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>

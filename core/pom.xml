@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.github.phantomthief</groupId>
         <artifactId>more-lambdas-parent</artifactId>
-        <version>0.1.45</version>
+        <version>0.1.46-SNAPSHOT</version>
     </parent>
 
     <description>Some useful lambda implements for Java 8.</description>

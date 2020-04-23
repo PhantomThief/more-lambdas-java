@@ -183,6 +183,23 @@ internal class MoreFuturesTest {
         shutdownAndAwaitTermination(scheduled, 1, DAYS)
     }
 
+    @Test
+    fun testDynamicDelay2() {
+        val scheduled = newScheduledThreadPool(100)
+        val counter = AtomicInteger()
+        val future = scheduleWithDynamicDelay(scheduled, ofSeconds(1), { ofSeconds(3) }) {
+            logger.info("current executor count:{}", counter.incrementAndGet())
+        }
+        sleepUninterruptibly(2, SECONDS)
+        assertEquals(1, counter.toInt())
+        sleepUninterruptibly(6, SECONDS)
+        assertEquals(3, counter.toInt())
+        future.cancel(true)
+        sleepUninterruptibly(10, SECONDS)
+        assertEquals(3, counter.toInt())
+        shutdownAndAwaitTermination(scheduled, 1, DAYS)
+    }
+
     @Disabled
     @Test
     fun testDynamicScheduledMemoryLeak() {

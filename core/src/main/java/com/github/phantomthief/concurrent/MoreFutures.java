@@ -274,6 +274,27 @@ public class MoreFutures {
      * @return a future that can cancel the task.
      */
     public static Future<?> scheduleWithDynamicDelay(@Nonnull ScheduledExecutorService executor,
+            @Nonnull Duration initialDelay, @Nonnull Supplier<Duration> delay,
+            @Nonnull ThrowableRunnable<Throwable> task) {
+        checkNotNull(initialDelay);
+        checkNotNull(delay);
+        checkNotNull(task);
+        return scheduleWithDynamicDelay(executor, initialDelay, () -> {
+            try {
+                task.run();
+            } catch (Throwable e) {
+                logger.error("", e);
+            }
+            return delay.get();
+        });
+    }
+
+    /**
+     * @param task any exception throwing would be ignore and logged, task would not cancelled.
+     * @param executor all task would be stopped after executor has been marked shutting down.
+     * @return a future that can cancel the task.
+     */
+    public static Future<?> scheduleWithDynamicDelay(@Nonnull ScheduledExecutorService executor,
             @Nonnull Supplier<Duration> delay, @Nonnull ThrowableRunnable<Throwable> task) {
         checkNotNull(delay);
         return scheduleWithDynamicDelay(executor, delay.get(), () -> {

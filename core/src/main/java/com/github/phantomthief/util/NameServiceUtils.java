@@ -93,7 +93,7 @@ public class NameServiceUtils {
                 checkJdk9(nameService9);
                 return new UnifiedNameServiceAdapter(nameService9);
             }
-        } catch (IllegalArgumentException | IllegalAccessException e) {
+        } catch (IllegalArgumentException | IllegalAccessException | NullPointerException e) {
             // ignore
         }
 
@@ -143,7 +143,7 @@ public class NameServiceUtils {
                 setNameServiceJdk9(unifiedNameService, nameService);
                 return;
             }
-        } catch (IllegalArgumentException | IllegalAccessException e) {
+        } catch (IllegalArgumentException | IllegalAccessException | NullPointerException e) {
             // ignore
         }
 

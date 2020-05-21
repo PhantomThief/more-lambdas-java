@@ -1,13 +1,20 @@
 package com.github.phantomthief.util;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.util.concurrent.Uninterruptibles.awaitUninterruptibly;
+import static java.lang.System.nanoTime;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import java.io.Serializable;
+import java.time.Duration;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+import javax.annotation.Nullable;
 
 /**
  * @author w.vela
@@ -39,17 +46,42 @@ public final class MoreSuppliers {
         }
     }
 
+    /**
+     * use {@link #asyncLazyEx(Supplier, Supplier, String)}
+     */
+    @Deprecated
     public static <T> Supplier<T> asyncLazy(Supplier<T> delegate, Supplier<T> pendingSupplier,
             String threadName) {
         return new AsyncSupplier<>(delegate, pendingSupplier, threadName);
     }
 
+    /**
+     * use {@link #asyncLazyEx(Supplier, String)} instead
+     */
+    @Deprecated
     public static <T> Supplier<T> asyncLazy(Supplier<T> delegate, String threadName) {
         return asyncLazy(delegate, () -> null, threadName);
     }
 
+    /**
+     * use {@link #asyncLazyEx(Supplier)} instead
+     */
+    @Deprecated
     public static <T> Supplier<T> asyncLazy(Supplier<T> delegate) {
         return asyncLazy(delegate, null);
+    }
+
+    public static <T> AsyncSupplier<T> asyncLazyEx(Supplier<T> delegate, Supplier<T> pendingSupplier,
+            String threadName) {
+        return new AsyncSupplier<>(delegate, pendingSupplier, threadName);
+    }
+
+    public static <T> AsyncSupplier<T> asyncLazyEx(Supplier<T> delegate, String threadName) {
+        return asyncLazyEx(delegate, () -> null, threadName);
+    }
+
+    public static <T> AsyncSupplier<T> asyncLazyEx(Supplier<T> delegate) {
+        return asyncLazyEx(delegate, null);
     }
 
     public static class CloseableSupplier<T> implements Supplier<T>, Serializable {
@@ -57,7 +89,7 @@ public final class MoreSuppliers {
         private static final long serialVersionUID = 0L;
         private final Supplier<T> delegate;
         private final boolean resetAfterClose;
-        private volatile transient boolean initialized;
+        private transient volatile boolean initialized;
         private transient T value;
 
         private CloseableSupplier(Supplier<T> delegate, boolean resetAfterClose) {
@@ -218,6 +250,8 @@ public final class MoreSuppliers {
 
         private volatile boolean inited;
         private volatile boolean initing;
+        private volatile long firstInitNano;
+        private volatile CountDownLatch latch;
 
         AsyncSupplier(Supplier<T> innerSupplier, Supplier<T> pendingSupplier,
                 String initThreadName) {
@@ -226,12 +260,18 @@ public final class MoreSuppliers {
             this.pendingSupplier = checkNotNull(pendingSupplier);
         }
 
-        @Override
-        public T get() {
+        /**
+         * @param timeoutFromFirstIniting max wait duration from the first call.
+         */
+        public T get(@Nullable Duration timeoutFromFirstIniting) {
             if (inited) {
                 return value;
             }
             if (initing) {
+                tryWait(timeoutFromFirstIniting);
+                if (inited) {
+                    return value;
+                }
                 return pendingSupplier.get();
             }
             synchronized (this) {
@@ -239,8 +279,15 @@ public final class MoreSuppliers {
                     return value;
                 }
                 if (initing) {
+                    tryWait(timeoutFromFirstIniting);
+                    if (inited) {
+                        return value;
+                    }
                     return pendingSupplier.get();
                 }
+                // start init
+                firstInitNano = nanoTime();
+                latch = new CountDownLatch(1);
                 initing = true;
                 Runnable initWithTry = () -> {
                     try {
@@ -250,6 +297,8 @@ public final class MoreSuppliers {
                     } catch (Throwable e) {
                         initing = false;
                         throw e;
+                    } finally {
+                        latch.countDown();
                     }
                 };
                 if (initThreadName == null) {
@@ -261,7 +310,28 @@ public final class MoreSuppliers {
             if (inited) {
                 return value;
             } else {
+                tryWait(timeoutFromFirstIniting);
+                if (inited) {
+                    return value;
+                }
                 return pendingSupplier.get();
+            }
+        }
+
+        @Override
+        public T get() {
+            return get(null);
+        }
+
+        private void tryWait(@Nullable Duration maxWaitFromFirstCall) {
+            if (maxWaitFromFirstCall == null) {
+                return;
+            }
+            long passedDuration = nanoTime() - firstInitNano;
+            long maxWaitDuration = maxWaitFromFirstCall.toNanos();
+            long needWaitDuration = maxWaitDuration - passedDuration;
+            if (needWaitDuration > 0) {
+                awaitUninterruptibly(latch, needWaitDuration, NANOSECONDS);
             }
         }
     }

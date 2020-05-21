@@ -1,9 +1,12 @@
 package com.github.phantomthief.test;
 
 import static com.github.phantomthief.util.MoreSuppliers.asyncLazy;
+import static com.github.phantomthief.util.MoreSuppliers.asyncLazyEx;
 import static com.github.phantomthief.util.MoreSuppliers.lazy;
 import static com.github.phantomthief.util.MoreSuppliers.lazyEx;
+import static com.google.common.base.Stopwatch.createStarted;
 import static com.google.common.util.concurrent.Uninterruptibles.sleepUninterruptibly;
+import static java.time.Duration.ofSeconds;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,8 +22,10 @@ import java.util.function.Supplier;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import com.github.phantomthief.util.MoreSuppliers.AsyncSupplier;
 import com.github.phantomthief.util.MoreSuppliers.CloseableSupplier;
 import com.github.phantomthief.util.MoreSuppliers.CloseableThrowableSupplier;
+import com.google.common.base.Stopwatch;
 
 /**
  * @author w.vela
@@ -131,6 +136,31 @@ class MoreSuppliersTest {
                 assertNull(x);
             }
         }
+    }
+
+    @Test
+    void testAsyncWithWait() {
+        Stopwatch sw = createStarted();
+        AsyncSupplier<String> supplier = asyncLazyEx(() -> {
+            System.out.println("initing...");
+            sleepUninterruptibly(3, SECONDS);
+            System.out.println("inited.");
+            return "test";
+        });
+        assertNull(supplier.get(ofSeconds(1)));
+        System.out.println("elapsed:" + sw);
+        assertEquals(1, sw.elapsed(SECONDS));
+        assertNull(supplier.get(ofSeconds(1)));
+        System.out.println("elapsed:" + sw);
+        assertEquals(1, sw.elapsed(SECONDS));
+        assertNull(supplier.get(ofSeconds(2)));
+        System.out.println("elapsed:" + sw);
+        assertEquals(2, sw.elapsed(SECONDS));
+        assertEquals("test", supplier.get(ofSeconds(4)));
+        System.out.println("elapsed:" + sw);
+        assertEquals(3, sw.elapsed(SECONDS));
+        assertEquals("test", supplier.get(ofSeconds(4)));
+        assertEquals(3, sw.elapsed(SECONDS));
     }
 
     @Test

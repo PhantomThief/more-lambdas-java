@@ -208,6 +208,8 @@ public class MoreFutures {
             Future<V> future = asyncFunc.apply(key);
             checkNotNull(future);
             futureKeyMap.put(future, key);
+        }
+        for (Future<? extends V> future : futureKeyMap.keySet()) {
             if (remainingNanos <= 0) {
                 waitAndCollect(successMap, failMap, timeoutMap, cancelMap, future, 1L);
                 continue;

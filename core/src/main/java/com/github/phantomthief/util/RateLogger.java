@@ -70,11 +70,6 @@ public class RateLogger implements Logger {
     /**
      * 工厂方法
      *
-     * <p>
-     * 注意：此方法按Logger名称进行了缓存！如果多次对同一个Logger实例，传入不容的permitsPer参数调用获取RateLogger，
-     * 使用的总是第一次调用传入的permitsPer参数
-     * </p>
-     *
      * @param logger 要封装的logger实例
      * @param permitsPer 打log的每秒允许个数，例如传入0.2，就意味着五秒打一条log
      */

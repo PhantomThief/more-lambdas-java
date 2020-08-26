@@ -580,7 +580,7 @@ public final class MoreSuppliers {
         /**
          * 等待指定的时间完成异步加载
          *
-         * @param maxWaitFromFirstCall 等待时常
+         * @param maxWaitFromFirstCall 等待时长
          */
         private void tryWait(@Nullable Duration maxWaitFromFirstCall) {
             if (maxWaitFromFirstCall == null) {

@@ -16,8 +16,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.github.phantomthief.pool.impl.KeyAffinityExecutorBuilder;
-import com.github.phantomthief.util.ThrowableConsumer;
-import com.github.phantomthief.util.ThrowableFunction;
 import com.github.phantomthief.util.ThrowableRunnable;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -91,24 +89,6 @@ public interface KeyAffinityExecutor<K> extends KeyAffinity<K, ListeningExecutor
                 .executor(executor(threadName, queueBufferSize))
                 .usingRandom(it -> it > RANDOM_THRESHOLD)
                 .build();
-    }
-
-    /**
-     * should call {@link #execute} or {@link #submit}
-     */
-    @Override
-    default <T, X extends Throwable> T supply(K key,
-            @Nonnull ThrowableFunction<ListeningExecutorService, T, X> func) throws X {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * should call {@link #execute} or {@link #submit}
-     */
-    @Override
-    default <X extends Throwable> void run(K key,
-            @Nonnull ThrowableConsumer<ListeningExecutorService, X> func) throws X {
-        throw new UnsupportedOperationException();
     }
 
     default <T> ListenableFuture<T> submit(K key, @Nonnull Callable<T> task) {

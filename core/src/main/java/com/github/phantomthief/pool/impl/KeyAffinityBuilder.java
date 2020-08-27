@@ -23,7 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
  * Created on 2018-02-09.
  */
 @NotThreadSafe
-public class KeyAffinityBuilder<V> {
+class KeyAffinityBuilder<V> {
 
     private Supplier<V> factory;
     private IntSupplier count;

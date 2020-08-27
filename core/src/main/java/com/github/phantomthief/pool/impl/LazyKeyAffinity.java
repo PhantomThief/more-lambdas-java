@@ -16,19 +16,17 @@ import com.github.phantomthief.util.MoreSuppliers.CloseableSupplier;
  */
 class LazyKeyAffinity<K, V> implements KeyAffinity<K, V> {
 
-    private final CloseableSupplier<KeyAffinity<K, V>> factory;
+    private final CloseableSupplier<KeyAffinityImpl<K, V>> factory;
 
-    LazyKeyAffinity(Supplier<KeyAffinity<K, V>> factory) {
+    LazyKeyAffinity(Supplier<KeyAffinityImpl<K, V>> factory) {
         this.factory = lazy(factory, false);
     }
 
     @Nonnull
-    @Override
     public V select(K key) {
         return factory.get().select(key);
     }
 
-    @Override
     public void finishCall(K key) {
         factory.get().finishCall(key);
     }

@@ -1,11 +1,12 @@
 package com.github.phantomthief.pool.impl;
 
 import java.util.Iterator;
-
-import javax.annotation.Nonnull;
+import java.util.concurrent.Callable;
 
 import com.github.phantomthief.pool.KeyAffinityExecutor;
 import com.github.phantomthief.pool.KeyAffinityExecutorStats;
+import com.github.phantomthief.util.ThrowableRunnable;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 
 /**
@@ -28,17 +29,6 @@ class KeyAffinityExecutorForStats<K> implements KeyAffinityExecutor<K> {
         }
     }
 
-    @Nonnull
-    @Override
-    public ListeningExecutorService select(K key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void finishCall(K key) {
-        throw new UnsupportedOperationException();
-    }
-
     @Override
     public boolean inited() {
         return delegate.inited();
@@ -52,6 +42,16 @@ class KeyAffinityExecutorForStats<K> implements KeyAffinityExecutor<K> {
     @Override
     public Iterator<ListeningExecutorService> iterator() {
         return delegate.iterator();
+    }
+
+    @Override
+    public <T> ListenableFuture<T> submit(K key, Callable<T> task) {
+        return delegate.submit(key, task);
+    }
+
+    @Override
+    public void executeEx(K key, ThrowableRunnable<Exception> task) {
+        delegate.executeEx(key, task);
     }
 
     @Override

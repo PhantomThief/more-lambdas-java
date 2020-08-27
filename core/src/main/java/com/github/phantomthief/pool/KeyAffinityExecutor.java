@@ -4,9 +4,6 @@ import static com.github.phantomthief.pool.KeyAffinityExecutorUtils.RANDOM_THRES
 import static com.github.phantomthief.pool.KeyAffinityExecutorUtils.executor;
 import static com.github.phantomthief.util.MoreReflection.logDeprecated;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Throwables.throwIfUnchecked;
-import static com.google.common.util.concurrent.Futures.addCallback;
-import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 
 import java.util.Collection;
 import java.util.concurrent.Callable;
@@ -17,11 +14,9 @@ import javax.annotation.Nullable;
 
 import com.github.phantomthief.pool.impl.KeyAffinityExecutorBuilder;
 import com.github.phantomthief.util.ThrowableRunnable;
-import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.common.util.concurrent.UncheckedExecutionException;
 
 /**
  * @author w.vela
@@ -91,33 +86,7 @@ public interface KeyAffinityExecutor<K> extends KeyAffinity<K, ListeningExecutor
                 .build();
     }
 
-    default <T> ListenableFuture<T> submit(K key, @Nonnull Callable<T> task) {
-        checkNotNull(task);
-
-        ListeningExecutorService service = select(key);
-        boolean addCallback = false;
-        try {
-            ListenableFuture<T> future = service.submit(task);
-            addCallback(future, new FutureCallback<Object>() {
-
-                @Override
-                public void onSuccess(@Nullable Object result) {
-                    finishCall(key);
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    finishCall(key);
-                }
-            }, directExecutor());
-            addCallback = true;
-            return future;
-        } finally {
-            if (!addCallback) {
-                finishCall(key);
-            }
-        }
-    }
+    <T> ListenableFuture<T> submit(K key, @Nonnull Callable<T> task);
 
     /**
      * use {@link #executeEx} instead
@@ -134,29 +103,7 @@ public interface KeyAffinityExecutor<K> extends KeyAffinity<K, ListeningExecutor
         });
     }
 
-    default void executeEx(K key, @Nonnull ThrowableRunnable<Exception> task) {
-        checkNotNull(task);
-
-        ListeningExecutorService service = select(key);
-        boolean addCallback = false;
-        try {
-            service.execute(() -> {
-                try {
-                    task.run();
-                } catch (Throwable e) { // pass to uncaught exception handler
-                    throwIfUnchecked(e);
-                    throw new UncheckedExecutionException(e);
-                } finally {
-                    finishCall(key);
-                }
-            });
-            addCallback = true;
-        } finally {
-            if (!addCallback) {
-                finishCall(key);
-            }
-        }
-    }
+    void executeEx(K key, @Nonnull ThrowableRunnable<Exception> task);
 
     /**
      * @return {@code} null if not inited

@@ -14,7 +14,6 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 
-import com.github.phantomthief.pool.KeyAffinity;
 import com.github.phantomthief.util.ThrowableConsumer;
 import com.google.common.annotations.VisibleForTesting;
 
@@ -31,12 +30,12 @@ class KeyAffinityBuilder<V> {
     private IntPredicate usingRandom;
     private BooleanSupplier counterChecker;
 
-    public <K> KeyAffinity<K, V> build() {
+    public <K> LazyKeyAffinity<K, V> build() {
         ensure();
         return new LazyKeyAffinity<>(this::buildInner);
     }
 
-    <K> KeyAffinity<K, V> buildInner() {
+    <K> KeyAffinityImpl<K, V> buildInner() {
         return new KeyAffinityImpl<>(factory, count, depose, usingRandom, counterChecker);
     }
 

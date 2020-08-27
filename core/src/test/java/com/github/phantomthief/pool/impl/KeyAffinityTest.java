@@ -19,7 +19,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.github.phantomthief.pool.KeyAffinity;
 import com.github.phantomthief.util.ThrowableConsumer;
 import com.github.phantomthief.util.ThrowableFunction;
 
@@ -29,7 +28,7 @@ import com.github.phantomthief.util.ThrowableFunction;
  */
 class KeyAffinityTest {
 
-    private KeyAffinity<Integer, String> keyAffinity;
+    private LazyKeyAffinity<Integer, String> keyAffinity;
 
     @BeforeEach
     void setUp() {
@@ -70,7 +69,7 @@ class KeyAffinityTest {
         keyAffinity.close();
     }
 
-    private static <T, X extends Throwable, K, V> T supply(KeyAffinity<K, V> keyAffinity, K key,
+    private static <T, X extends Throwable, K, V> T supply(LazyKeyAffinity<K, V> keyAffinity, K key,
             @Nonnull ThrowableFunction<V, T, X> func) throws X {
         checkNotNull(func);
         V one = keyAffinity.select(key);
@@ -81,7 +80,7 @@ class KeyAffinityTest {
         }
     }
 
-    private static <X extends Throwable, K, V> void run(KeyAffinity<K, V> keyAffinity, K key,
+    private static <X extends Throwable, K, V> void run(LazyKeyAffinity<K, V> keyAffinity, K key,
             @Nonnull ThrowableConsumer<V, X> func) throws X {
         supply(keyAffinity,key, it -> {
             func.accept(it);

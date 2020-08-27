@@ -65,7 +65,6 @@ class KeyAffinityImpl<K, V> implements KeyAffinity<K, V> {
     }
 
     @Nonnull
-    @Override
     public V select(K key) {
         int thisCount = count.getAsInt();
         tryCheckCount(thisCount);
@@ -145,7 +144,6 @@ class KeyAffinityImpl<K, V> implements KeyAffinity<K, V> {
         }
     }
 
-    @Override
     public void finishCall(K key) {
         mapping.computeIfPresent(key, (k, v) -> {
             if (v.decrConcurrency()) {

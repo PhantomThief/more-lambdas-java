@@ -64,10 +64,13 @@ class KeyAffinityExecutorStatsTest {
 
         executor1.executeEx(1, () -> sleepUninterruptibly(2, SECONDS));
         executor2.executeEx(1, () -> sleepUninterruptibly(2, SECONDS));
+
+        sleepUninterruptibly(1, SECONDS);
+
         for (KeyAffinityExecutor<?> keyAffinityExecutor : all) {
             KeyAffinityExecutorStats stats = keyAffinityExecutor.stats();
             assertNotNull(stats);
-            logger.info("stats:{}", stats);
+            logger.info("stats:{}=>{}", keyAffinityExecutor, stats);
             assertEquals(10, stats.getThreadPoolStats().size());
             assertEquals(1, stats.getThreadPoolStats().stream()
                     .mapToInt(SingleThreadPoolStats::getActiveThreadCount)

@@ -92,6 +92,8 @@ class KeyAffinityExecutorStatsTest {
         executor1.executeEx(1, () -> sleepUninterruptibly(2, SECONDS));
         executor2.executeEx(1, () -> sleepUninterruptibly(2, SECONDS));
 
+        sleepUninterruptibly(1, SECONDS);
+
         for (KeyAffinityExecutor<?> keyAffinityExecutor : all) {
             KeyAffinityExecutorStats stats = keyAffinityExecutor.stats();
             assertNotNull(stats);

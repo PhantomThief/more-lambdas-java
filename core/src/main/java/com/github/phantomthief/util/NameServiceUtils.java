@@ -25,6 +25,8 @@ import com.github.phantomthief.tuple.TwoTuple;
  */
 public class NameServiceUtils {
 
+    private static final byte[] LOCAL_HOST = {127, 0, 0, 1};
+
     private static <T, R> R doInvoke(Object object, String method, T it) throws UnknownHostException {
         try {
             //noinspection unchecked
@@ -112,7 +114,7 @@ public class NameServiceUtils {
 
     private static void checkJdk8(Object nameService8) {
         try {
-            String result = doInvoke(nameService8, "getHostByAddr", InetAddress.getLocalHost().getAddress());
+            String result = doInvoke(nameService8, "getHostByAddr", LOCAL_HOST);
         } catch (UnknownHostException e) {
             // ignore
         } catch (Throwable e) {
@@ -120,11 +122,11 @@ public class NameServiceUtils {
         }
     }
 
-    private static void checkJdk9(Object nameService9) {
+    static void checkJdk9(Object nameService9) {
         checkState(StringUtils.equals("java.net.InetAddress$PlatformNameService", nameService9.getClass().getName()),
                 "unsupported jdk9+ impl.");
         try {
-            String result = doInvoke(nameService9, "getHostByAddr", InetAddress.getLocalHost().getAddress());
+            String result = doInvoke(nameService9, "getHostByAddr", LOCAL_HOST);
         } catch (UnknownHostException e) {
             // ignore
         } catch (Throwable e) {

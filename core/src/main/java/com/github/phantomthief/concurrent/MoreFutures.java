@@ -119,7 +119,7 @@ public class MoreFutures {
      *  Map<Future<User>, User> success;
      *  try {
      *    success = tryWait(list, 1, SECONDS);
-     *  } catch (TryWaitUncheckedException e) {
+     *  } catch (TryWaitFutureUncheckedException e) {
      *    success = e.getSuccess(); // there are still some success
      *  }
      *
@@ -132,9 +132,8 @@ public class MoreFutures {
      * @throws TryWaitUncheckedException if not all calls are successful.
      */
     @Nonnull
-    public static <F extends Future<V>, V> Map<F, V> tryWait(@Nonnull Iterable<F> futures,
-            @Nonnegative long timeout, @Nonnull TimeUnit unit)
-            throws TryWaitFutureUncheckedException {
+    public static <F extends Future<V>, V> Map<F, V> tryWait(@Nonnull Iterable<F> futures, @Nonnegative long timeout,
+            @Nonnull TimeUnit unit) throws TryWaitFutureUncheckedException {
         checkNotNull(futures);
         checkArgument(timeout > 0);
         checkNotNull(unit);

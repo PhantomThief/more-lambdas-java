@@ -140,7 +140,7 @@ public class RateLogger implements Logger {
         return CACHE.computeIfAbsent(key, it -> new RateLogger(logger, it.getSecond(), it.getThird()));
     }
 
-    private SimpleRateLimiter canDo(@Nullable String msg) {
+    private SimpleRateLimiter getLimiter(@Nullable String msg) {
         if (msg == null) {
             return rateLimiter;
         } else {
@@ -184,7 +184,7 @@ public class RateLogger implements Logger {
     @Override
     public void trace(String msg) {
         if (isTraceEnabled()) {
-            SimpleRateLimiter limiter = canDo(msg);
+            SimpleRateLimiter limiter = getLimiter(msg);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, TRACE_INT, msg(msg), args(limiter, null), null);
@@ -198,7 +198,7 @@ public class RateLogger implements Logger {
     @Override
     public void trace(String format, Object arg) {
         if (isTraceEnabled()) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, TRACE_INT, msg(format), args(limiter, arg), null);
@@ -212,7 +212,7 @@ public class RateLogger implements Logger {
     @Override
     public void trace(String format, Object arg1, Object arg2) {
         if (isTraceEnabled()) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, TRACE_INT, msg(format), args(limiter, new Object[] {arg1, arg2}), null);
@@ -226,7 +226,7 @@ public class RateLogger implements Logger {
     @Override
     public void trace(String format, Object... arguments) {
         if (isTraceEnabled()) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, TRACE_INT, msg(format), args(limiter, arguments), null);
@@ -240,7 +240,7 @@ public class RateLogger implements Logger {
     @Override
     public void trace(String msg, Throwable t) {
         if (isTraceEnabled()) {
-            SimpleRateLimiter limiter = canDo(msg);
+            SimpleRateLimiter limiter = getLimiter(msg);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, TRACE_INT, msg(msg), args(limiter, null), t);
@@ -259,7 +259,7 @@ public class RateLogger implements Logger {
     @Override
     public void trace(Marker marker, String msg) {
         if (isTraceEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(msg);
+            SimpleRateLimiter limiter = getLimiter(msg);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, TRACE_INT, msg(msg), args(limiter, null), null);
@@ -273,7 +273,7 @@ public class RateLogger implements Logger {
     @Override
     public void trace(Marker marker, String format, Object arg) {
         if (isTraceEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, TRACE_INT, msg(format), args(limiter, arg), null);
@@ -287,7 +287,7 @@ public class RateLogger implements Logger {
     @Override
     public void trace(Marker marker, String format, Object arg1, Object arg2) {
         if (isTraceEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, TRACE_INT, msg(format), args(limiter, new Object[] {arg1, arg2}), null);
@@ -301,7 +301,7 @@ public class RateLogger implements Logger {
     @Override
     public void trace(Marker marker, String format, Object... argArray) {
         if (isTraceEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, TRACE_INT, msg(format), args(limiter, argArray), null);
@@ -315,7 +315,7 @@ public class RateLogger implements Logger {
     @Override
     public void trace(Marker marker, String msg, Throwable t) {
         if (isTraceEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(msg);
+            SimpleRateLimiter limiter = getLimiter(msg);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, TRACE_INT, msg(msg), args(limiter, null), t);
@@ -334,7 +334,7 @@ public class RateLogger implements Logger {
     @Override
     public void debug(String msg) {
         if (isDebugEnabled()) {
-            SimpleRateLimiter limiter = canDo(msg);
+            SimpleRateLimiter limiter = getLimiter(msg);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, DEBUG_INT, msg(msg), args(limiter, null), null);
@@ -348,7 +348,7 @@ public class RateLogger implements Logger {
     @Override
     public void debug(String format, Object arg) {
         if (isDebugEnabled()) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, DEBUG_INT, msg(format), args(limiter, arg), null);
@@ -362,7 +362,7 @@ public class RateLogger implements Logger {
     @Override
     public void debug(String format, Object arg1, Object arg2) {
         if (isDebugEnabled()) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, DEBUG_INT, msg(format), args(limiter, new Object[] {arg1, arg2}), null);
@@ -376,7 +376,7 @@ public class RateLogger implements Logger {
     @Override
     public void debug(String format, Object... arguments) {
         if (isDebugEnabled()) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, DEBUG_INT, msg(format), args(limiter, arguments), null);
@@ -390,7 +390,7 @@ public class RateLogger implements Logger {
     @Override
     public void debug(String msg, Throwable t) {
         if (isDebugEnabled()) {
-            SimpleRateLimiter limiter = canDo(msg);
+            SimpleRateLimiter limiter = getLimiter(msg);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, DEBUG_INT, msg(msg), args(limiter, null), t);
@@ -409,7 +409,7 @@ public class RateLogger implements Logger {
     @Override
     public void debug(Marker marker, String msg) {
         if (isDebugEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(msg);
+            SimpleRateLimiter limiter = getLimiter(msg);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, DEBUG_INT, msg(msg), args(limiter, null), null);
@@ -423,7 +423,7 @@ public class RateLogger implements Logger {
     @Override
     public void debug(Marker marker, String format, Object arg) {
         if (isDebugEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, DEBUG_INT, msg(format), args(limiter, arg), null);
@@ -437,7 +437,7 @@ public class RateLogger implements Logger {
     @Override
     public void debug(Marker marker, String format, Object arg1, Object arg2) {
         if (isDebugEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, DEBUG_INT, msg(format), args(limiter, new Object[] {arg1, arg2}), null);
@@ -451,7 +451,7 @@ public class RateLogger implements Logger {
     @Override
     public void debug(Marker marker, String format, Object... argArray) {
         if (isDebugEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, DEBUG_INT, msg(format), args(limiter, argArray), null);
@@ -465,7 +465,7 @@ public class RateLogger implements Logger {
     @Override
     public void debug(Marker marker, String msg, Throwable t) {
         if (isDebugEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(msg);
+            SimpleRateLimiter limiter = getLimiter(msg);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, DEBUG_INT, msg(msg), args(limiter, null), t);
@@ -484,7 +484,7 @@ public class RateLogger implements Logger {
     @Override
     public void info(String msg) {
         if (isInfoEnabled()) {
-            SimpleRateLimiter limiter = canDo(msg);
+            SimpleRateLimiter limiter = getLimiter(msg);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, INFO_INT, msg(msg), args(limiter, null), null);
@@ -498,7 +498,7 @@ public class RateLogger implements Logger {
     @Override
     public void info(String format, Object arg) {
         if (isInfoEnabled()) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, INFO_INT, msg(format), args(limiter, arg), null);
@@ -512,7 +512,7 @@ public class RateLogger implements Logger {
     @Override
     public void info(String format, Object arg1, Object arg2) {
         if (isInfoEnabled()) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, INFO_INT, msg(format), args(limiter, new Object[] {arg1, arg2}), null);
@@ -526,7 +526,7 @@ public class RateLogger implements Logger {
     @Override
     public void info(String format, Object... arguments) {
         if (isInfoEnabled()) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, INFO_INT, msg(format), args(limiter, arguments), null);
@@ -540,7 +540,7 @@ public class RateLogger implements Logger {
     @Override
     public void info(String msg, Throwable t) {
         if (isInfoEnabled()) {
-            SimpleRateLimiter limiter = canDo(msg);
+            SimpleRateLimiter limiter = getLimiter(msg);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, INFO_INT, msg(msg), args(limiter, null), t);
@@ -559,7 +559,7 @@ public class RateLogger implements Logger {
     @Override
     public void info(Marker marker, String msg) {
         if (isInfoEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(msg);
+            SimpleRateLimiter limiter = getLimiter(msg);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, INFO_INT, msg(msg), args(limiter, null), null);
@@ -573,7 +573,7 @@ public class RateLogger implements Logger {
     @Override
     public void info(Marker marker, String format, Object arg) {
         if (isInfoEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, INFO_INT, msg(format), args(limiter, arg), null);
@@ -587,7 +587,7 @@ public class RateLogger implements Logger {
     @Override
     public void info(Marker marker, String format, Object arg1, Object arg2) {
         if (isInfoEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, INFO_INT, msg(format), args(limiter, new Object[] {arg1, arg2}), null);
@@ -601,7 +601,7 @@ public class RateLogger implements Logger {
     @Override
     public void info(Marker marker, String format, Object... argArray) {
         if (isInfoEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, INFO_INT, msg(format), args(limiter, argArray), null);
@@ -615,7 +615,7 @@ public class RateLogger implements Logger {
     @Override
     public void info(Marker marker, String msg, Throwable t) {
         if (isInfoEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(msg);
+            SimpleRateLimiter limiter = getLimiter(msg);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, INFO_INT, msg(msg), args(limiter, null), t);
@@ -634,7 +634,7 @@ public class RateLogger implements Logger {
     @Override
     public void warn(String msg) {
         if (isWarnEnabled()) {
-            SimpleRateLimiter limiter = canDo(msg);
+            SimpleRateLimiter limiter = getLimiter(msg);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, WARN_INT, msg(msg), args(limiter, null), null);
@@ -648,7 +648,7 @@ public class RateLogger implements Logger {
     @Override
     public void warn(String format, Object arg) {
         if (isWarnEnabled()) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, WARN_INT, msg(format), args(limiter, arg), null);
@@ -662,7 +662,7 @@ public class RateLogger implements Logger {
     @Override
     public void warn(String format, Object arg1, Object arg2) {
         if (isWarnEnabled()) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, WARN_INT, msg(format), args(limiter, new Object[] {arg1, arg2}), null);
@@ -676,7 +676,7 @@ public class RateLogger implements Logger {
     @Override
     public void warn(String format, Object... arguments) {
         if (isWarnEnabled()) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, WARN_INT, msg(format), args(limiter, arguments), null);
@@ -690,7 +690,7 @@ public class RateLogger implements Logger {
     @Override
     public void warn(String msg, Throwable t) {
         if (isWarnEnabled()) {
-            SimpleRateLimiter limiter = canDo(msg);
+            SimpleRateLimiter limiter = getLimiter(msg);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, WARN_INT, msg(msg), args(limiter, null), t);
@@ -709,7 +709,7 @@ public class RateLogger implements Logger {
     @Override
     public void warn(Marker marker, String msg) {
         if (isWarnEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(msg);
+            SimpleRateLimiter limiter = getLimiter(msg);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, WARN_INT, msg(msg), args(limiter, null), null);
@@ -723,7 +723,7 @@ public class RateLogger implements Logger {
     @Override
     public void warn(Marker marker, String format, Object arg) {
         if (isWarnEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, WARN_INT, msg(format), args(limiter, arg), null);
@@ -737,7 +737,7 @@ public class RateLogger implements Logger {
     @Override
     public void warn(Marker marker, String format, Object arg1, Object arg2) {
         if (isWarnEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, WARN_INT, msg(format), args(limiter, new Object[] {arg1, arg2}), null);
@@ -751,7 +751,7 @@ public class RateLogger implements Logger {
     @Override
     public void warn(Marker marker, String format, Object... argArray) {
         if (isWarnEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, WARN_INT, msg(format), args(limiter, argArray), null);
@@ -765,7 +765,7 @@ public class RateLogger implements Logger {
     @Override
     public void warn(Marker marker, String msg, Throwable t) {
         if (isWarnEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(msg);
+            SimpleRateLimiter limiter = getLimiter(msg);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, WARN_INT, msg(msg), args(limiter, null), t);
@@ -784,7 +784,7 @@ public class RateLogger implements Logger {
     @Override
     public void error(String msg) {
         if (isErrorEnabled()) {
-            SimpleRateLimiter limiter = canDo(msg);
+            SimpleRateLimiter limiter = getLimiter(msg);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, ERROR_INT, msg(msg), args(limiter, null), null);
@@ -798,7 +798,7 @@ public class RateLogger implements Logger {
     @Override
     public void error(String format, Object arg) {
         if (isErrorEnabled()) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, ERROR_INT, msg(format), args(limiter, arg), null);
@@ -812,7 +812,7 @@ public class RateLogger implements Logger {
     @Override
     public void error(String format, Object arg1, Object arg2) {
         if (isErrorEnabled()) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, ERROR_INT, msg(format), args(limiter, new Object[] {arg1, arg2}), null);
@@ -826,7 +826,7 @@ public class RateLogger implements Logger {
     @Override
     public void error(String format, Object... arguments) {
         if (isErrorEnabled()) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, ERROR_INT, msg(format), args(limiter, arguments), null);
@@ -840,7 +840,7 @@ public class RateLogger implements Logger {
     @Override
     public void error(String msg, Throwable t) {
         if (isErrorEnabled()) {
-            SimpleRateLimiter limiter = canDo(msg);
+            SimpleRateLimiter limiter = getLimiter(msg);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(null, FQCN, ERROR_INT, msg(msg), args(limiter, null), t);
@@ -859,7 +859,7 @@ public class RateLogger implements Logger {
     @Override
     public void error(Marker marker, String msg) {
         if (isErrorEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(msg);
+            SimpleRateLimiter limiter = getLimiter(msg);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, ERROR_INT, msg(msg), args(limiter, null), null);
@@ -873,7 +873,7 @@ public class RateLogger implements Logger {
     @Override
     public void error(Marker marker, String format, Object arg) {
         if (isErrorEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, ERROR_INT, msg(format), args(limiter, arg), null);
@@ -887,7 +887,7 @@ public class RateLogger implements Logger {
     @Override
     public void error(Marker marker, String format, Object arg1, Object arg2) {
         if (isErrorEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, ERROR_INT, msg(format), args(limiter, new Object[] {arg1, arg2}), null);
@@ -901,7 +901,7 @@ public class RateLogger implements Logger {
     @Override
     public void error(Marker marker, String format, Object... argArray) {
         if (isErrorEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(format);
+            SimpleRateLimiter limiter = getLimiter(format);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, ERROR_INT, msg(format), args(limiter, argArray), null);
@@ -915,7 +915,7 @@ public class RateLogger implements Logger {
     @Override
     public void error(Marker marker, String msg, Throwable t) {
         if (isErrorEnabled(marker)) {
-            SimpleRateLimiter limiter = canDo(msg);
+            SimpleRateLimiter limiter = getLimiter(msg);
             if (limiter.tryAcquire()) {
                 if (locationAwareLogger != null) {
                     locationAwareLogger.log(marker, FQCN, ERROR_INT, msg(msg), args(limiter, null), t);

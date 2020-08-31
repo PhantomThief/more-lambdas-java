@@ -122,7 +122,7 @@ public class NameServiceUtils {
         }
     }
 
-    static void checkJdk9(Object nameService9) {
+    private static void checkJdk9(Object nameService9) {
         checkState(StringUtils.equals("java.net.InetAddress$PlatformNameService", nameService9.getClass().getName()),
                 "unsupported jdk9+ impl.");
         try {

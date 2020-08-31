@@ -18,8 +18,8 @@ class RateLoggerTest {
         Logger logger = LoggerFactory.getLogger("test");
         RateLogger rateLogger = RateLogger.rateLogger(logger);
         for (int i = 0; i < 10; i++) {
-            rateLogger.info("test1:{}", i);
-            rateLogger.info("test2:{}", i);
+            rateLogger.info("test1:{} (EXPECTED ONLY TWICE)", i);
+            rateLogger.info("test2:{} (EXPECTED ONLY TWICE)", i);
             sleepUninterruptibly(200, MILLISECONDS);
         }
     }
@@ -29,8 +29,8 @@ class RateLoggerTest {
         Logger logger = LoggerFactory.getLogger("test2");
         RateLogger rateLogger = RateLogger.perFormatStringRateLogger(logger);
         for (int i = 0; i < 10; i++) {
-            rateLogger.info("test1:{}", i);
-            rateLogger.info("test2:{}", i);
+            rateLogger.info("test1:{} (EXPECTED SHOW 4 TIMES)", i);
+            rateLogger.info("test2:{} (EXPECTED SHOW 4 TIMES)", i);
             sleepUninterruptibly(200, MILLISECONDS);
         }
     }

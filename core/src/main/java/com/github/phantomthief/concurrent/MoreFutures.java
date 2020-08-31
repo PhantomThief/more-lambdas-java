@@ -129,7 +129,7 @@ public class MoreFutures {
      *  Map<Future<User>, User> success = tryWait(list, 1, SECONDS);
      * </pre>}
      *
-     * @throws TryWaitUncheckedException if not all calls are successful.
+     * @throws TryWaitFutureUncheckedException if not all calls are successful.
      */
     @Nonnull
     public static <F extends Future<V>, V> Map<F, V> tryWait(@Nonnull Iterable<F> futures, @Nonnegative long timeout,

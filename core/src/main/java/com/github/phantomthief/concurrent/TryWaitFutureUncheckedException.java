@@ -8,6 +8,9 @@ import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
 
 /**
+ * 本类和 {@link TryWaitUncheckedException} 的区别是：
+ * 返回的 getXxx 都是以 {@link Future} 为 key 的 {@link Map}，而
+ *
  * @author w.vela
  * Created on 2018-06-25.
  */

@@ -24,6 +24,9 @@ import com.google.common.cache.LoadingCache;
 
 /**
  * 使用 {@link SimpleRateLimiter} 来控制打 log 输出的频率，避免出现 log flood 占用过高的 CPU
+ * 对于需要用一个 logger 打不同类型的日志，又不希望不同日志输出频率互相干扰（比如高频日志把低频日志淹没）
+ * 可以使用 {@link #perFormatStringRateLogger(Logger)} 方式构建 logger，这时候，不同日志的区分方式是以 log.info(msg, args...);
+ * 中第一个参数 msg 来区分，相同的 msg 会被认为是相同类型的日志，从而共享相同的频次限制；
  *
  * 使用方法:
  * {@code <pre>
@@ -82,10 +85,20 @@ public class RateLogger implements Logger {
         this.rateLimiter = SimpleRateLimiter.create(permitsPerSecond);
     }
 
+    /**
+     * 工厂方法
+     *
+     * @param logger 要封装的logger实例
+     */
     public static RateLogger rateLogger(Logger logger) {
         return rateLogger(logger, DEFAULT_PERMITS_PER_SECOND);
     }
 
+    /**
+     * 工厂方法，和 {@link #rateLogger} 的区别是，会按照不同的 msg 分别采样计算
+     *
+     * @param logger 要封装的logger实例
+     */
     public static RateLogger perFormatStringRateLogger(Logger logger) {
         return perFormatStringRateLogger(logger,  DEFAULT_PERMITS_PER_SECOND);
     }

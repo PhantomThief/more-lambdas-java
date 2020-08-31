@@ -87,7 +87,7 @@ public class RateLogger implements Logger {
     }
 
     public static RateLogger perFormatStringRateLogger(Logger logger) {
-        return rateLogger(logger, DEFAULT_PERMITS_PER_SECOND, true);
+        return perFormatStringRateLogger(logger,  DEFAULT_PERMITS_PER_SECOND);
     }
 
     /**

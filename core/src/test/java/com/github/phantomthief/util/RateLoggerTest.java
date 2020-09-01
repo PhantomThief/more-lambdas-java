@@ -37,7 +37,7 @@ class RateLoggerTest {
     @Test
     void test2() {
         Logger logger = LoggerFactory.getLogger("test2");
-        RateLogger rateLogger = RateLogger.perFormatStringRateLogger(logger);
+        RateLogger rateLogger = RateLogger.perMessageRateLogger(logger);
         int[] toStringCalled = {0};
         Object obj = new Object() {
             @Override

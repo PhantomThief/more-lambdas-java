@@ -141,10 +141,10 @@ public class RateLogger implements Logger {
     }
 
     private SimpleRateLimiter getLimiter(@Nullable String msg) {
-        if (msg == null) {
+        if (perFormatStringRateLimiter == null) {
             return rateLimiter;
         } else {
-            if (perFormatStringRateLimiter == null) {
+            if (msg == null) {
                 return rateLimiter;
             } else {
                 return perFormatStringRateLimiter.getUnchecked(msg);

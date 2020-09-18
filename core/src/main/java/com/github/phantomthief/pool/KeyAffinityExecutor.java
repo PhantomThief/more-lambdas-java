@@ -19,6 +19,8 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
+ * @param <K> 该泛型如果是自定义类型，一定要实现正确的 {@link Object#hashCode()} 和 {@link Object#equals(Object)}
+ *
  * @author w.vela
  * Created on 2018-02-09.
  */

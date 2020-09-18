@@ -16,7 +16,7 @@
 
         <junit.version>5.7.0</junit.version>
         <logback-classic.version>1.2.3</logback-classic.version>
-        <jmh.version>1.23</jmh.version>
+        <jmh.version>1.25.2</jmh.version>
 
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>

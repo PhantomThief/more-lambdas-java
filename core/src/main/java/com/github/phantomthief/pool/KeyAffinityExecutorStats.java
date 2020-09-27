@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * {@link KeyAffinityExecutor}统计类，用于获取当前执行器的状态信息
+ *
  * @author w.vela
  * Created on 2018-11-29.
  */

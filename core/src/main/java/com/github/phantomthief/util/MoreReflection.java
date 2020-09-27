@@ -15,6 +15,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Predicates;
 
 /**
+ * MoreReflection增强工具集合
+ * <p>用于通过反射进行的一些通用操作的工具集合</p>
+ *
  * @author w.vela
  * Created on 2018-06-13.
  */
@@ -47,7 +50,9 @@ public class MoreReflection {
     }
 
     /**
-     * @param message should contains {} for output placeholder.
+     * 打印废弃方法调用的日志，默认将方法的调用位置作为参数，所以message中至少包含一个占位符。此日志只打印一次
+     *
+     * @param message 消息模板，至少包含一个日志变量占位符，用于输出调用位置的文件和行号
      */
     public static void logDeprecated(@Nonnull String message) {
         if (RATE_LIMITER.tryAcquire()) {
@@ -59,17 +64,35 @@ public class MoreReflection {
         }
     }
 
+    /**
+     * 获取当前方法的调用者，通过获取当前的调用栈向上查找获得
+     *
+     * @return StackTraceElement
+     */
     @Nullable
     public static StackTraceElement getCallerPlace() {
         return getCallerPlace(MoreReflection.class);
     }
 
+    /**
+     * 获取当前方法的调用者，从指定的类位置向上查找
+     *
+     * @param locationAwareClass 指定类的类型
+     * @return StackTraceElement
+     */
     @Nullable
     public static StackTraceElement getCallerPlace(Class<?> locationAwareClass) {
         String name = locationAwareClass.getName();
         return STACK_TRACE_PROVIDER.getCallerPlace(name::equals, Predicates.alwaysFalse());
     }
 
+    /**
+     * 获取当前方法的调用者，从指定的类位置向上查找，并以指定的条件进行忽略
+     *
+     * @param locationAwareClass 指定类的类型
+     * @param ignore 忽略条件断言
+     * @return StackTraceElement
+     */
     @Nullable
     public static StackTraceElement getCallerPlaceEx(@Nonnull Predicate<String> locationAwareClass,
             @Nonnull Predicate<String> ignore) {

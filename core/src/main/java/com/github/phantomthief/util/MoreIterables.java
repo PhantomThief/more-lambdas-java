@@ -17,18 +17,40 @@ import java.util.stream.Stream;
 import com.google.common.collect.Range;
 
 /**
+ * MoreIterables增强工具集合
+ * <p>迭代器快捷工具，用于快速获取批次数列</p>
+ *
  * @author w.vela
  */
 public final class MoreIterables {
 
+    /**
+     * 工具类，禁止实例化成对象
+     */
     private MoreIterables() {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * 取得一个闭区间的long类型的数列，并按批次的大小进行分组，返回一个{@link Stream}
+     *
+     * @param from 起始值（含）
+     * @param to 终止值（含）
+     * @param batch 分组批次大小
+     * @return 分组序列Stream
+     */
     public static Stream<List<Long>> batchClosedRangeStream(long from, long to, int batch) {
         return toStream(batchClosedRange(from, to, batch));
     }
 
+    /**
+     * 取得一个闭区间的long类型的数列，并按批次的大小进行分组，返回一个{@link Iterable}
+     *
+     * @param from 起始值（含）
+     * @param to 终止值（含）
+     * @param batch 分组批次大小
+     * @return 分组序列Iterable
+     */
     public static Iterable<List<Long>> batchClosedRange(long from, long to, int batch) {
         checkArgument(batch > 0);
         if (from == to) {
@@ -43,10 +65,26 @@ public final class MoreIterables {
         return partition(longStream.boxed()::iterator, batch);
     }
 
+    /**
+     * 取得一个闭区间的long类型的数列，并按批次的大小进行分组，返回一个{@link Stream}，使用{@link Range}承载
+     *
+     * @param from 起始值（含）
+     * @param to 终止值（含）
+     * @param batch 分组批次大小
+     * @return 分组序列Stream
+     */
     public static Stream<Range<Long>> batchClosedSimpleRangeStream(long from, long to, int batch) {
         return toStream(batchClosedSimpleRange(from, to, batch));
     }
 
+    /**
+     * 取得一个闭区间的long类型的数列，并按批次的大小进行分组，返回一个{@link Iterable}，使用{@link Range}承载
+     *
+     * @param from 起始值（含）
+     * @param to 终止值（含）
+     * @param batch 分组批次大小
+     * @return 分组序列Iterable
+     */
     public static Iterable<Range<Long>> batchClosedSimpleRange(long from, long to, int batch) {
         checkArgument(batch > 0);
         if (from == to) {

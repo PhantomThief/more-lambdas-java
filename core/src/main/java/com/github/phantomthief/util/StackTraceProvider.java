@@ -7,6 +7,9 @@ import javax.annotation.Nullable;
 import com.google.common.base.Predicates;
 
 /**
+ * 调用栈提供器接口
+ * <p>用于获得当前调用点向上查找的调用栈位置，通常应用在需要获得方法调用位置的场景。默认包括JDK8/JDK9的两个实现，JDK9的实现更高效。</p>
+ *
  * @author w.vela
  * Created on 2019-08-01.
  */

@@ -41,6 +41,9 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.common.util.concurrent.UncheckedTimeoutException;
 
 /**
+ * MoreFutures增强工具集合
+ * <p>用于简化{@link Future}相关的操作</p>
+ *
  * @author w.vela
  * Created on 2018-06-25.
  */
@@ -49,10 +52,14 @@ public class MoreFutures {
     private static final Logger logger = LoggerFactory.getLogger(MoreFutures.class);
 
     /**
-     * @throws UncheckedTimeoutException if timeout occurred.
-     * @throws java.util.concurrent.CancellationException if task was canceled.
-     * @throws ExecutionError if a {@link Error} occurred.
-     * @throws UncheckedExecutionException if a normal Exception occurred.
+     * 获取并返回一个{@link Future}的操作结果值，并将可能出现的异常以非检查异常的方式抛出
+     *
+     * @param future 要获取值的{@link Future}
+     * @param duration 获取值的超时时间
+     * @throws UncheckedTimeoutException 操作超时异常
+     * @throws java.util.concurrent.CancellationException 任务取消异常
+     * @throws ExecutionError 执行时发生的{@link Error}异常
+     * @throws UncheckedExecutionException 其他执行异常
      */
     public static <T> T getUnchecked(@Nonnull Future<? extends T> future,
             @Nonnull Duration duration) {
@@ -61,10 +68,15 @@ public class MoreFutures {
     }
 
     /**
-     * @throws UncheckedTimeoutException if timeout occurred.
-     * @throws java.util.concurrent.CancellationException if task was canceled.
-     * @throws ExecutionError if a {@link Error} occurred.
-     * @throws UncheckedExecutionException if a normal Exception occurred.
+     * 获取并返回一个{@link Future}的操作结果值，并将可能出现的异常以非检查异常的方式抛出
+     *
+     * @param future 要获取值的{@link Future}
+     * @param timeout 超时时间
+     * @param unit 超时时间单位
+     * @throws UncheckedTimeoutException 操作超时异常
+     * @throws java.util.concurrent.CancellationException 任务取消异常
+     * @throws ExecutionError 执行时发生的{@link Error}异常
+     * @throws UncheckedExecutionException 其他执行异常
      */
     public static <T> T getUnchecked(@Nonnull Future<? extends T> future, @Nonnegative long timeout,
             @Nonnull TimeUnit unit) {
@@ -72,10 +84,16 @@ public class MoreFutures {
     }
 
     /**
-     * @throws UncheckedTimeoutException if timeout occurred.
-     * @throws java.util.concurrent.CancellationException if task was canceled.
-     * @throws ExecutionError if a {@link Error} occurred.
-     * @throws UncheckedExecutionException if a normal Exception occurred.
+     * 获取并返回一个{@link Future}的操作结果值，并将可能出现的异常以非检查异常的方式抛出
+     *
+     * @param future 要获取值的{@link Future}
+     * @param timeout 超时时间
+     * @param unit 超时时间单位
+     * @param cancelOnTimeout 执行超时后是否取消{@link Future}的执行
+     * @throws UncheckedTimeoutException 操作超时异常
+     * @throws java.util.concurrent.CancellationException 任务取消异常
+     * @throws ExecutionError 执行时发生的{@link Error}异常
+     * @throws UncheckedExecutionException 其他执行异常
      */
     public static <T> T getUnchecked(@Nonnull Future<? extends T> future, @Nonnegative long timeout,
             @Nonnull TimeUnit unit, boolean cancelOnTimeout) {
@@ -99,9 +117,13 @@ public class MoreFutures {
     }
 
     /**
-     * @see #tryWait(Iterable, long, TimeUnit)
+     * 同时获取并返回一批{@link Future}的操作结果值
      *
-     * @throws TryWaitFutureUncheckedException if not all calls are successful.
+     * @param futures 要获取值的多个{@link Future}
+     * @param duration 获取值的超时时间
+     * @throws TryWaitFutureUncheckedException 当并非所有的{@link Future}都成功返回时，将会抛出此异常，
+     * 可以通过此异常获取成功、异常、超时、取消的各个{@link Future}
+     * @see #tryWait(Iterable, long, TimeUnit)
      */
     @Nonnull
     public static <F extends Future<V>, V> Map<F, V> tryWait(@Nonnull Iterable<F> futures,
@@ -112,8 +134,9 @@ public class MoreFutures {
     }
 
     /**
-     * A typical usage:
-     * {@code <pre>
+     * 同时获取并返回一批{@link Future}的操作结果值
+     * <p>典型的使用场景：</p>
+     * <pre>{@code
      *  // a fail-safe example
      *  List<Future<User>> list = doSomeAsyncTasks();
      *  Map<Future<User>, User> success;
@@ -127,9 +150,13 @@ public class MoreFutures {
      *  List<Future<User>> list = doSomeAsyncTasks();
      *  // don't try/catch the exception it throws.
      *  Map<Future<User>, User> success = tryWait(list, 1, SECONDS);
-     * </pre>}
+     * }</pre>
      *
-     * @throws TryWaitFutureUncheckedException if not all calls are successful.
+     * @param futures 要获取值的多个{@link Future}
+     * @param timeout 超时时间
+     * @param unit 超时时间单位
+     * @throws TryWaitFutureUncheckedException 当并非所有的{@link Future}都成功返回时，将会抛出此异常，
+     * 可以通过此异常获取成功、异常、超时、取消的各个{@link Future}
      */
     @Nonnull
     public static <F extends Future<V>, V> Map<F, V> tryWait(@Nonnull Iterable<F> futures, @Nonnegative long timeout,
@@ -141,9 +168,13 @@ public class MoreFutures {
     }
 
     /**
-     * @see #tryWait(Iterable, long, TimeUnit, ThrowableFunction)
+     * 同时获取并返回一批{@link Future}的操作结果值
      *
+     * @param keys 要获取值的Key，作为输入值，通过asyncFunc参数传入的函数转换为Future对象
+     * @param duration 获取值的超时时间
+     * @param asyncFunc 异步转换函数，将输入的每一个Key值转换为{@link Future}
      * @throws TryWaitUncheckedException if not all calls are successful.
+     * @see #tryWait(Iterable, long, TimeUnit, ThrowableFunction)
      */
     @Nonnull
     public static <K, V, X extends Throwable> Map<K, V> tryWait(@Nonnull Iterable<K> keys,
@@ -156,8 +187,9 @@ public class MoreFutures {
     }
 
     /**
-     * A typical usage:
-     * {@code <pre>
+     * 同时获取并返回一批{@link Future}的操作结果值
+     * <p>典型的使用场景：</p>
+     * <pre>{@code
      *  // a fail-safe example
      *  List<Integer> list = getSomeIds();
      *  Map<Integer, User> success;
@@ -171,8 +203,12 @@ public class MoreFutures {
      *  List<Integer> list = getSomeIds();
      *  // don't try/catch the exception it throws.
      *  Map<Integer, User> success = tryWait(list, 1, SECONDS, id -> executor.submit(() -> retrieve(id)));
-     * </pre>}
+     * }</pre>
      *
+     * @param keys 要获取值的Key，作为输入值，通过asyncFunc参数传入的函数转换为Future对象
+     * @param timeout 超时时间
+     * @param unit 超时时间单位
+     * @param asyncFunc 异步转换函数，将输入的每一个Key值转换为{@link Future}
      * @throws TryWaitUncheckedException if not all calls are successful.
      */
     @Nonnull
@@ -247,9 +283,12 @@ public class MoreFutures {
     }
 
     /**
-     * @param task any exception throwing would cancel the task. user should swallow exceptions by self.
-     * @param executor all task would be stopped after executor has been marked shutting down.
-     * @return a future that can cancel the task.
+     * 执行一个计划任务，按照上一次计划任务返回的等待时间，来运行下一次任务
+     *
+     * @param executor 任务执行器，当任务执行器停止时，所有任务将停止运行
+     * @param initDelay 首次执行的延迟时间
+     * @param task 执行的任务，在任务中抛出的异常会终止任务的运行，需谨慎处理
+     * @return 执行任务的Future，可以用来取消任务
      */
     public static Future<?> scheduleWithDynamicDelay(@Nonnull ScheduledExecutorService executor,
             @Nullable Duration initDelay, @Nonnull Scheduled task) {
@@ -270,9 +309,13 @@ public class MoreFutures {
     }
 
     /**
-     * @param task any exception throwing would be ignore and logged, task would not cancelled.
-     * @param executor all task would be stopped after executor has been marked shutting down.
-     * @return a future that can cancel the task.
+     * 执行一个计划任务，按照上一次计划任务返回的等待时间，来运行下一次任务
+     *
+     * @param executor 任务执行器，当任务执行器停止时，所有任务将停止运行
+     * @param initialDelay 首次执行的延迟时间
+     * @param delay 任务延迟提供器，用来设置任务执行之后下一次的执行间隔时间
+     * @param task 执行的任务，在任务中抛出的异常会终止任务的运行，需谨慎处理
+     * @return 执行任务的Future，可以用来取消任务
      */
     public static Future<?> scheduleWithDynamicDelay(@Nonnull ScheduledExecutorService executor,
             @Nonnull Duration initialDelay, @Nonnull Supplier<Duration> delay,
@@ -291,9 +334,12 @@ public class MoreFutures {
     }
 
     /**
-     * @param task any exception throwing would be ignore and logged, task would not cancelled.
-     * @param executor all task would be stopped after executor has been marked shutting down.
-     * @return a future that can cancel the task.
+     * 执行一个计划任务，按照上一次计划任务返回的等待时间，来运行下一次任务
+     *
+     * @param executor 任务执行器，当任务执行器停止时，所有任务将停止运行
+     * @param delay 任务延迟提供器，用来设置任务执行之后下一次的执行间隔时间
+     * @param task 执行的任务，在任务中抛出的异常会终止任务的运行，需谨慎处理
+     * @return 执行任务的Future，可以用来取消任务
      */
     public static Future<?> scheduleWithDynamicDelay(@Nonnull ScheduledExecutorService executor,
             @Nonnull Supplier<Duration> delay, @Nonnull ThrowableRunnable<Throwable> task) {
@@ -314,6 +360,11 @@ public class MoreFutures {
      * 主要提供两个额外的功能:
      * 1. API使用jdk8
      * 2. 提供了 {@link TimeoutListenableFuture} 的支持（保持Listener不会丢）
+     *
+     * @param input 输入的Future
+     * @param function 用于从输入的Future转换为输出Future结果类型的转换函数
+     * @param executor 转换函数执行的Executor
+     * @return 返回转换后的Future对象
      */
     public static <I, O> ListenableFuture<O> transform(ListenableFuture<I> input,
             Function<? super I, ? extends O> function, Executor executor) {
@@ -338,6 +389,19 @@ public class MoreFutures {
         }
     }
 
+    /**
+     * 用于替换
+     * {@link Futures#transformAsync(ListenableFuture, com.google.common.util.concurrent.AsyncFunction, Executor)}
+     * <p>
+     * 主要提供两个额外的功能:
+     * 1. API使用jdk8
+     * 2. 提供了 {@link TimeoutListenableFuture} 的支持（保持Listener不会丢）
+     *
+     * @param input 输入的Future
+     * @param function 用于从输入的Future转换为输出Future结果类型的转换函数
+     * @param executor 转换函数执行的Executor
+     * @return 返回转换后的Future对象
+     */
     public static <I, O> ListenableFuture<O> transformAsync(ListenableFuture<I> input,
             AsyncFunction<? super I, ? extends O> function,
             Executor executor) {

@@ -39,6 +39,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.common.util.concurrent.UncheckedTimeoutException;
+import com.google.common.util.concurrent.Uninterruptibles;
 
 /**
  * MoreFutures增强工具集合
@@ -53,6 +54,9 @@ public class MoreFutures {
 
     /**
      * 获取并返回一个{@link Future}的操作结果值，并将可能出现的异常以非检查异常的方式抛出
+     * <p>在获取传入的Future值时，使用{@link Uninterruptibles#getUninterruptibly}方式获取，
+     * 以确保操作是在足够的等待时间后返回，而不是直接在发生interrupt的时候立即中断操作。</p>
+     * <p>在操作超时后，将不会通过{@link Future#cancel}方式来取消执行。</p>
      *
      * @param future 要获取值的{@link Future}
      * @param duration 获取值的超时时间
@@ -69,6 +73,9 @@ public class MoreFutures {
 
     /**
      * 获取并返回一个{@link Future}的操作结果值，并将可能出现的异常以非检查异常的方式抛出
+     * <p>在获取传入的Future值时，使用{@link Uninterruptibles#getUninterruptibly}方式获取，
+     * 以确保操作是在足够的等待时间后返回，而不是直接在发生interrupt的时候立即中断操作。</p>
+     * <p>在操作超时后，将不会通过{@link Future#cancel}方式来取消执行。</p>
      *
      * @param future 要获取值的{@link Future}
      * @param timeout 超时时间
@@ -85,6 +92,12 @@ public class MoreFutures {
 
     /**
      * 获取并返回一个{@link Future}的操作结果值，并将可能出现的异常以非检查异常的方式抛出
+     * <p>在获取传入的Future值时，使用{@link Uninterruptibles#getUninterruptibly}方式获取，
+     * 以确保操作是在足够的等待时间后返回，而不是直接在发生interrupt的时候立即中断操作。</p>
+     * <p>如果指定了{@code cancelOnTimeout}的值为{@code true}，在操作超时后，将会通过{@link Future#cancel}方法来尝试取消任务，
+     * 该取消操作将会传入{@code false}作为{@code mayInterruptIfRunning}参数的值。这意味着，将不会通过interrupt方式来提前终止
+     * 实际运行，而是等待在途操作的自然结束。这主要是基于健壮性考虑，防止interrupt带来意外行为，
+     * 对某些场景下，未妥善处理的interrupt可能是有害的，所以我们默认采取非interrupt的方式来处理。</p>
      *
      * @param future 要获取值的{@link Future}
      * @param timeout 超时时间

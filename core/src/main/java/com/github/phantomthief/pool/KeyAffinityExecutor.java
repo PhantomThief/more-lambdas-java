@@ -27,6 +27,18 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  * 多个（数量可配）这样的单线程执行器，来保持一定的任务并行度。</p>
  * <p>需要注意的是，此接口定义的KeyAffinityExecutor，并不要求Key相同的任务在相同的线程上运行，
  * 尽管实现类可以按照这种方式来实现，但它并非一个强制性的要求，因此在使用时也请不要依赖这样的假定。</p>
+ * <p>
+ * 一个典型的使用方式是:
+ * <pre>{@code
+ * class MyClass {
+ *   private final KeyAffinityExecutor<Integer> keyExecutor = newSerializingExecutor(10, "user-fans-count-%d");
+ *   void foo(User user) {
+ *     Future<Integer> fansCount = keyExecutor.submit(user.getUserId(), () -> {
+ *       return fansService.getByUserId(user.getUserId());
+ *     });
+ *   }
+ * }
+ * }</pre>
  *
  * @param <K> 该泛型如果是自定义类型，一定要实现正确的 {@link Object#hashCode()}
  * @author w.vela
@@ -41,21 +53,6 @@ public interface KeyAffinityExecutor<K> extends KeyAffinity<K, ListeningExecutor
      * <p>
      * 一般推荐使用其它几个 {@link #newSerializingExecutor} 重载版本，只有当需要定制具体参数时，才用本方法；
      * <p>
-     * 一个典型的使用方法是:
-     * <pre>{@code
-     * class MyClass {
-     *   private final KeyAffinityExecutor<Integer> keyExecutor = newKeyAffinityExecutor()
-     *                       .parallelism(10) // 设置并发度
-     *                       .executor(() -> new ExecutorWithStats(newSingleThreadExecutor())) // 工厂方法
-     *                       .usingRandom(true) // 强制采用随机方式分配
-     *                       .build();
-     *   void foo(User user) {
-     *     Future<Integer> fansCount = keyExecutor.submit(user.getUserId(), () -> {
-     *       return fansService.getByUserId(user.getUserId());
-     *     });
-     *   }
-     * }
-     * }</pre>
      *
      * @see #newSerializingExecutor
      */

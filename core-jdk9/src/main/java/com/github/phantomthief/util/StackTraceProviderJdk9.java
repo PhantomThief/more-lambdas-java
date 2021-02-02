@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class StackTraceProviderJdk9 implements StackTraceProvider {
 
+    // RETAIN_CLASS_REFERENCE 和关闭，对性能的影响，实际压测结果微乎其微。
     private final StackWalker stackWalker = StackWalker.getInstance(RETAIN_CLASS_REFERENCE);
 
     @Nullable

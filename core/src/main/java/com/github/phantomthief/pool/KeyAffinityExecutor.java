@@ -27,6 +27,9 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  * 多个（数量可配）这样的单线程执行器，来保持一定的任务并行度。</p>
  * <p>需要注意的是，此接口定义的KeyAffinityExecutor，并不要求Key相同的任务在相同的线程上运行，
  * 尽管实现类可以按照这种方式来实现，但它并非一个强制性的要求，因此在使用时也请不要依赖这样的假定。</p>
+ * <p>很多人问，这和自己使用一个 {@link java.util.concurrent.Executor} 的数组，并通过简单取模的方式来实现有什么区别？
+ * 事实上，大多数场景的确差异不大，但是当数据倾斜发生时，被散列到相同位置的数据可能会因为热点倾斜数据被延误，本实现在并发度较低时（阈值可设置），
+ * 会挑选最闲置的 {@link java.util.concurrent.Executor} 投递，尽最大可能隔离倾斜数据，减少对其它数据带来的影响。</p>
  * <p>
  * 一个典型的使用方式是:
  * <pre>{@code

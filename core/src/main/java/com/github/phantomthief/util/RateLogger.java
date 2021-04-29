@@ -23,13 +23,14 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 /**
- * 使用 {@link SimpleRateLimiter} 来控制打 log 输出的频率，避免出现 log flood 占用过高的 CPU
- * 对于需要用一个 logger 打不同类型的日志，又不希望不同日志输出频率互相干扰（比如高频日志把低频日志淹没）
- * 可以使用 {@link #perMessageRateLogger(Logger)} 方式构建 logger，这时候，不同日志的区分方式是以 log.info(msg, args...);
- * 中第一个参数 msg 来区分，相同的 msg 会被认为是相同类型的日志，从而共享相同的频次限制；
+ * 使用 {@link SimpleRateLimiter} 来控制打 log 输出的频率，避免出现 log flood 占用过高的 CPU <p>
+ * 对于需要用一个 logger 打不同类型的日志，又不希望不同日志输出频率互相干扰（比如高频日志把低频日志淹没）<p>
+ * 可以使用 {@link #perMessageRateLogger(Logger)} 方式构建 logger，这时候，不同日志的区分方式是以 log.info(msg, args...);<p>
+ * 中第一个参数 msg 来区分，相同的 msg 会被认为是相同类型的日志，从而共享相同的频次限制；<p>
  *
  * 使用方法:
- * {@code <pre>
+ * <pre>
+ * {@code
  *
  * class MyObject {
  *   private static final Logger logger = LoggerFactory.getLogger(MyObject.class); // normal one
@@ -39,8 +40,8 @@ import com.google.common.cache.LoadingCache;
  *     rateLogger.info("my message"); // use as normal logger.
  *   }
  * }
- *
- * </pre>}
+ * }
+ * </pre>
  *
  * @author w.vela
  * Created on 2017-02-24.

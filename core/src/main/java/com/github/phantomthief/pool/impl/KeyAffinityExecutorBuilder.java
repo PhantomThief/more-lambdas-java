@@ -40,6 +40,7 @@ public class KeyAffinityExecutorBuilder {
 
     private boolean usingDynamic = false;
     private boolean shutdownAfterClose = true;
+    private boolean skipDuplicate = false;
 
     /**
      * 创建{@link KeyAffinityExecutor}对象
@@ -56,6 +57,7 @@ public class KeyAffinityExecutorBuilder {
         }
         builder.ensure();
         KeyAffinityExecutorImpl<K> result = new KeyAffinityExecutorImpl<>(builder::buildInner);
+        result.setSkipDuplicate(skipDuplicate);
         ALL_EXECUTORS.put(result, wrapStats(result));
         return result;
     }
@@ -70,6 +72,21 @@ public class KeyAffinityExecutorBuilder {
     @Nonnull
     public KeyAffinityExecutorBuilder shutdownExecutorAfterClose(boolean value) {
         shutdownAfterClose = value;
+        return this;
+    }
+
+    /**
+     * 设置任务按Key分发任务到执行器中后，任务执行时，是否跳过的重复任务，仅执行最新的任务
+     * 跳过时，Callable 类型执行结果为 null, Runnable 默认不执行
+     *
+     * @param value 是否跳过的重复任务，仅执行最新的任务
+     * @return 当前构造器对象本身
+     * see {@link KeyAffinityBuilder#usingRandom(boolean)}
+     */
+    @CheckReturnValue
+    @Nonnull
+    public KeyAffinityExecutorBuilder skipDuplicate(boolean value) {
+        skipDuplicate = value;
         return this;
     }
 

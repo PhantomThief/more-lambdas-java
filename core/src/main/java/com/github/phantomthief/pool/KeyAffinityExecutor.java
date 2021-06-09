@@ -95,6 +95,25 @@ public interface KeyAffinityExecutor<K> extends KeyAffinity<K, ListeningExecutor
 
     /**
      * 创建一个{@link KeyAffinityExecutor}对象
+     *
+     * @param parallelism 指定{@link KeyAffinityExecutor}并发度，即最多并行执行的任务数
+     * @param queueBufferSize 任务队列的长度，请根据任务的吞吐量设置合适的大小，0为无上限（OOM警告）
+     * @param skipDuplicate 跳过历史的重复值
+     * @param threadName 执行线程的名称，支持使用%d占位符来指定线程序号，参考{@link ThreadFactoryBuilder#setNameFormat(String)}
+     * @return 返回{@link KeyAffinityExecutor}对象
+     */
+    @Nonnull
+    static <K> KeyAffinityExecutor<K> newSerializingExecutor(int parallelism, int queueBufferSize, boolean skipDuplicate,
+            String threadName) {
+        return newKeyAffinityExecutor()
+                .parallelism(parallelism)
+                .skipDuplicate(skipDuplicate)
+                .executor(executor(threadName, queueBufferSize))
+                .build();
+    }
+
+    /**
+     * 创建一个{@link KeyAffinityExecutor}对象
      * <p>此方法是{@link #newSerializingExecutor(int, int, String)} 的动态版本，可以动态设置并发度</p>
      *
      * @param parallelism 指定{@link KeyAffinityExecutor}并发度，即最多并行执行的任务数

@@ -4,14 +4,14 @@ import static com.github.phantomthief.pool.impl.KeyAffinityExecutorBuilder.ALL_E
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.throwIfUnchecked;
 import static com.google.common.util.concurrent.Futures.addCallback;
+import static com.google.common.util.concurrent.Futures.immediateCancelledFuture;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
@@ -20,12 +20,9 @@ import javax.annotation.Nullable;
 import com.github.phantomthief.pool.KeyAffinityExecutor;
 import com.github.phantomthief.pool.KeyAffinityExecutorStats;
 import com.github.phantomthief.pool.KeyAffinityExecutorStats.SingleThreadPoolStats;
-import com.github.phantomthief.tuple.Tuple;
-import com.github.phantomthief.tuple.TwoTuple;
 import com.github.phantomthief.util.ThrowableRunnable;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListenableFutureTask;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
@@ -36,15 +33,18 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 class KeyAffinityExecutorImpl<K> extends LazyKeyAffinity<K, ListeningExecutorService> implements
         KeyAffinityExecutor<K> {
 
-    private final Map<K, SubstituentTask> substituentTaskMap = new ConcurrentHashMap<>();
+    private ConcurrentMap<K, SubstituentCallable<?>> substituentTaskMap;
     private boolean skipDuplicate = false;
 
     KeyAffinityExecutorImpl(Supplier<KeyAffinityImpl<K, ListeningExecutorService>> factory) {
         super(factory);
     }
 
-    public void setSkipDuplicate(boolean skipDuplicate) {
+    void setSkipDuplicate(boolean skipDuplicate) {
         this.skipDuplicate = skipDuplicate;
+        if (skipDuplicate && substituentTaskMap == null) {
+            substituentTaskMap = new ConcurrentHashMap<>();
+        }
     }
 
     @Override
@@ -73,45 +73,21 @@ class KeyAffinityExecutorImpl<K> extends LazyKeyAffinity<K, ListeningExecutorSer
     }
 
 
-    private <T> TwoTuple<Callable<T>, Boolean> wrapCallable(K key, @Nonnull Callable<T> task) {
-        if (skipDuplicate) {
-            // 如果首次添加成功，提交任务到线程池
-            AtomicBoolean isFirstAdd = new AtomicBoolean();
-            SubstituentTask substituentTask = substituentTaskMap.compute(key, (k, v) -> {
-                if (v == null) {
-                    v = new SubstituentCallable(key, task);
-                    isFirstAdd.set(true);
-                } else { // 覆盖未执行的 task
-                    v.replace(task);
-                }
-                return v;
-            });
-
-            if (!(substituentTask instanceof Callable)) {
-                throw new IllegalStateException("found illegal task type. key:[" + key + "]");
-            }
-
-            Callable<T> addTask = (Callable<T>) substituentTask;
-
-            return Tuple.tuple(addTask, isFirstAdd.get());
-
-        }
-        return Tuple.tuple(task, true);
-    }
-
     @Override
     public <T> ListenableFuture<T> submit(K key, @Nonnull Callable<T> task) {
         checkNotNull(task);
 
-        TwoTuple<Callable<T>, Boolean> wrapTuple = wrapCallable(key, task);
-        if (!wrapTuple.getSecond()) {
-            return ListenableFutureTask.create(() -> null);
+        if (skipDuplicate) {
+            task = wrapSkipCheck(key, task);
+            if (task == null) {
+                return immediateCancelledFuture();
+            }
         }
 
         ListeningExecutorService service = select(key);
         boolean addCallback = false;
         try {
-            ListenableFuture<T> future = service.submit(wrapTuple.getFirst());
+            ListenableFuture<T> future = service.submit(task);
             addCallback(future, new FutureCallback<Object>() {
 
                 @Override
@@ -133,38 +109,50 @@ class KeyAffinityExecutorImpl<K> extends LazyKeyAffinity<K, ListeningExecutorSer
         }
     }
 
-    private TwoTuple<ThrowableRunnable<Exception>, Boolean> wrapRunnable(K key,
-            @Nonnull ThrowableRunnable<Exception> task) {
-        if (skipDuplicate) {
-            // 如果首次添加成功，提交任务到线程池
-            AtomicBoolean isFirstAdd = new AtomicBoolean();
-            SubstituentTask substituentTask = substituentTaskMap.compute(key, (k, v) -> {
-                if (v == null) {
-                    v = new SubstituentRunnable(key, task);
-                    isFirstAdd.set(true);
-                } else { // 覆盖未执行的 task
-                    v.replace(task);
-                }
-                return v;
-            });
-
-            if (!(substituentTask instanceof ThrowableRunnable)) {
-                throw new IllegalStateException("found illegal task type. key:[" + key + "]");
-            }
-
-            ThrowableRunnable<Exception> addTask = (ThrowableRunnable<Exception>) substituentTask;
-            return Tuple.tuple(addTask, isFirstAdd.get());
-
+    /**
+     * @return {@code null} if is not first added. for performances. only work on {{@link #skipDuplicate}} is {@code true}
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Nullable
+    private <T> Callable<T> wrapSkipCheck(K key, Callable<T> task) {
+        boolean[] firstAdd = {false};
+        SubstituentCallable<T> result =
+                (SubstituentCallable<T>) substituentTaskMap
+                        .compute(key, (k, v) -> {
+                            if (v == null) {
+                                v = new SubstituentCallable<>(key, task);
+                                firstAdd[0] = true;
+                            } else { // 覆盖未执行的 task
+                                // callable 的赋值其实依赖 CHM.compute 内的锁实现，所以不要轻易修改 compute 内的复制逻辑
+                                // 比如把 这个赋值 放到 compute 块的外部
+                                v.callable = (Callable) task;
+                            }
+                            return v;
+                        });
+        if (firstAdd[0]) {
+            return result;
+        } else {
+            return null;
         }
-        return Tuple.tuple(task, true);
     }
 
     @Override
     public void executeEx(K key, @Nonnull ThrowableRunnable<Exception> task) {
         checkNotNull(task);
-        TwoTuple<ThrowableRunnable<Exception>, Boolean> wrapTuple = wrapRunnable(key, task);
-        if (!wrapTuple.getSecond()) {
-            return;
+
+        ThrowableRunnable<Exception> finalTask;
+        if (skipDuplicate) {
+            Callable<Void> wrapCallable = wrapSkipCheck(key, () -> {
+                task.run();
+                return null;
+            });
+            if (wrapCallable == null) {
+                return;
+            } else {
+                finalTask = wrapCallable::call;
+            }
+        } else {
+            finalTask = task;
         }
 
         ListeningExecutorService service = select(key);
@@ -172,7 +160,7 @@ class KeyAffinityExecutorImpl<K> extends LazyKeyAffinity<K, ListeningExecutorSer
         try {
             service.execute(() -> {
                 try {
-                    wrapTuple.getFirst().run();
+                    finalTask.run();
                 } catch (Throwable e) { // pass to uncaught exception handler
                     throwIfUnchecked(e);
                     throw new UncheckedExecutionException(e);
@@ -188,46 +176,13 @@ class KeyAffinityExecutorImpl<K> extends LazyKeyAffinity<K, ListeningExecutorSer
         }
     }
 
-    private interface SubstituentTask<T> {
-
-        void replace(T t);
-
-    }
-
-    private class SubstituentRunnable implements SubstituentTask<ThrowableRunnable<Exception>>, ThrowableRunnable<Exception> {
-
-        private final K key;
-        private ThrowableRunnable<Exception> runnable;
-
-        public SubstituentRunnable(K key, ThrowableRunnable<Exception> runnable) {
-            this.key = key;
-            this.runnable = runnable;
-        }
-
-        @Override
-        public void replace(ThrowableRunnable<Exception> runnable) {
-            this.runnable = runnable;
-        }
-
-        @Override
-        public void run() throws Exception {
-            substituentTaskMap.remove(key);
-            runnable.run();
-        }
-    }
-
-    private class SubstituentCallable<T> implements SubstituentTask<Callable<T>>, Callable<T> {
+    private class SubstituentCallable<T> implements Callable<T> {
 
         private final K key;
         private Callable<T> callable;
 
-        public SubstituentCallable(K key, Callable<T> callable) {
+        private SubstituentCallable(K key, Callable<T> callable) {
             this.key = key;
-            this.callable = callable;
-        }
-
-        @Override
-        public void replace(Callable<T> callable) {
             this.callable = callable;
         }
 
@@ -237,7 +192,5 @@ class KeyAffinityExecutorImpl<K> extends LazyKeyAffinity<K, ListeningExecutorSer
             substituentTaskMap.remove(key);
             return callable.call();
         }
-
     }
-
 }

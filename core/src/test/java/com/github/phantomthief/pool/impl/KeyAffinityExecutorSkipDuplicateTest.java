@@ -1,45 +1,83 @@
 package com.github.phantomthief.pool.impl;
 
 import static com.github.phantomthief.pool.KeyAffinityExecutor.newSerializingExecutor;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.phantomthief.pool.KeyAffinityExecutor;
+import com.github.phantomthief.util.ThrowableRunnable;
+import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * @author duomn10
  * Created on 2021/6/9
  */
-public class KeyAffinityExecutorSkipDuplicateTest {
+class KeyAffinityExecutorSkipDuplicateTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(KeyAffinityExecutorSkipDuplicateTest.class);
 
     @Test
     void testSkipDuplicate() throws Exception {
-        Map<Integer, AtomicInteger> countMap = new ConcurrentHashMap<>();
+        Map<Integer, Integer> countMap = new ConcurrentHashMap<>();
+        int skipCount = 0;
         KeyAffinityExecutor<Integer> keyExecutor = newSerializingExecutor(2, 20, true, "test");
         for (int i = 0; i < 20; i++) {
             int key = i % 2;
-            keyExecutor.executeEx(key, () -> {
+            ListenableFuture<Object> future = keyExecutor.submit(key, () -> {
                 if (key == 0) {
-                    TimeUnit.MILLISECONDS.sleep(100);
+                    MILLISECONDS.sleep(100);
                 }
-                countMap.compute(key, (k, v) -> {
-                    if (v == null) {
-                        v = new AtomicInteger();
-                    }
-                    v.incrementAndGet();
-                    return v;
-                });
+                countMap.merge(key, 1, Math::addExact);
+                return null;
             });
-            TimeUnit.MILLISECONDS.sleep(10);
+            if (future.isCancelled()) {
+                assertThrows(CancellationException.class, future::get);
+                skipCount++;
+            }
+            MILLISECONDS.sleep(10);
         }
         keyExecutor.close();
-        Assertions.assertEquals(10, countMap.get(1).get());
-        Assertions.assertTrue(10 > countMap.get(0).get());
+        assertEquals(10, countMap.get(1));
+        assertTrue(10 > countMap.get(0));
+        assertEquals(skipCount, 10 - countMap.get(0));
+        logger.info("execute count:{}", countMap);
+    }
+
+    @Test
+    void testSkipDuplicateWithMultipleMethod() throws Exception {
+        Map<Integer, Integer> countMap = new ConcurrentHashMap<>();
+        KeyAffinityExecutor<Integer> keyExecutor = newSerializingExecutor(2, 20, true, "test");
+        for (int i = 0; i < 20; i++) {
+            int key = i % 2;
+            ThrowableRunnable<Exception> runnable = () -> {
+                if (key == 0) {
+                    MILLISECONDS.sleep(100);
+                }
+                countMap.merge(key, 1, Math::addExact);
+            };
+            if (i % 3 == 0) {
+                keyExecutor.executeEx(key, runnable);
+            } else {
+                keyExecutor.submit(key, () -> {
+                    runnable.run();
+                    return null;
+                });
+            }
+            MILLISECONDS.sleep(10);
+        }
+        keyExecutor.close();
+        assertEquals(10, countMap.get(1));
+        assertTrue(10 > countMap.get(0));
+        logger.info("execute count:{}", countMap);
     }
 }

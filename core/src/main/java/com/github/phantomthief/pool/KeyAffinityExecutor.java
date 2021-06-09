@@ -136,7 +136,8 @@ public interface KeyAffinityExecutor<K> extends KeyAffinity<K, ListeningExecutor
      *
      * @param key 任务对应的Key，此对象务必实现hashCode、equals，以确保可以起到标识作用
      * @param task 任务执行对象
-     * @return 携带任务执行返回值的 {@link ListenableFuture}
+     * @return 携带任务执行返回值的 {@link ListenableFuture}，当 {@link KeyAffinityExecutorBuilder#skipDuplicate(boolean)} 配置为 {@code true} 时，
+     * 如果提交的任务被跳过，{@link ListenableFuture#get()} 永远上抛 {@link java.util.concurrent.CancellationException}
      */
     <T> ListenableFuture<T> submit(K key, @Nonnull Callable<T> task);
 

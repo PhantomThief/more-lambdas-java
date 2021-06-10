@@ -189,6 +189,7 @@ class KeyAffinityExecutorImpl<K> extends LazyKeyAffinity<K, ListeningExecutorSer
         @Override
         public T call() throws Exception {
             // 任务执行后，从 map 中移除
+            // TODO 一个优化的方式，map 内维护正在运行的状态，这样就可以不依赖 KeyAffinityExecutor，使用普通的线程池也可以搞定了
             substituentTaskMap.remove(key);
             return callable.call();
         }

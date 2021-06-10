@@ -123,7 +123,7 @@ class KeyAffinityExecutorImpl<K> extends LazyKeyAffinity<K, ListeningExecutorSer
                                 v = new SubstituentCallable<>(key, task);
                                 firstAdd[0] = true;
                             } else { // 覆盖未执行的 task
-                                // callable 的赋值其实依赖 CHM.compute 内的锁实现，所以不要轻易修改 compute 内的复制逻辑
+                                // callable 的赋值其实依赖 CHM.compute 内的锁实现，所以不要轻易修改 compute 内的赋值逻辑
                                 // 比如把 这个赋值 放到 compute 块的外部
                                 v.callable = (Callable) task;
                             }

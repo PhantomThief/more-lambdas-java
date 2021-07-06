@@ -194,6 +194,7 @@ public class MoreFutures {
      *  List<Integer> list = getSomeIds();
      *  Map<Integer, User> success;
      *  try {
+     *    // 注意这里的线程池executor.submit操作可能失败和阻塞，需要妥善处理
      *    success = tryWait(list, 1, SECONDS, id -> executor.submit(() -> retrieve(id)));
      *  } catch (TryWaitUncheckedException e) {
      *    success = e.getSuccess(); // there are still some success
@@ -202,6 +203,7 @@ public class MoreFutures {
      *  // a fail-fast example
      *  List<Integer> list = getSomeIds();
      *  // don't try/catch the exception it throws.
+     *  // 注意这里的线程池executor.submit操作可能失败和阻塞，需要妥善处理
      *  Map<Integer, User> success = tryWait(list, 1, SECONDS, id -> executor.submit(() -> retrieve(id)));
      * }</pre>
      *

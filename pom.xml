@@ -6,7 +6,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <jdk.version>1.8</jdk.version>
+        <maven.compiler.release>8</maven.compiler.release>
 
         <slf4j-api.version>1.7.21</slf4j-api.version>
         <hppc.version>0.7.1</hppc.version>
@@ -204,8 +204,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
-                    <source>${jdk.version}</source>
-                    <target>${jdk.version}</target>
                     <fork>true</fork>
                     <verbose>true</verbose>
                     <encoding>UTF-8</encoding>

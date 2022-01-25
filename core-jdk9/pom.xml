@@ -9,7 +9,7 @@
     </parent>
 
     <properties>
-        <jdk.version>1.9</jdk.version>
+        <maven.compiler.release>9</maven.compiler.release>
     </properties>
 
     <dependencies>

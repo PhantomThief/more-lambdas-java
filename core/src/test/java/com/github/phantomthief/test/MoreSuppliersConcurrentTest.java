@@ -7,8 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
 
-import javax.management.RuntimeErrorException;
-
 import org.junit.jupiter.api.Test;
 
 import com.github.phantomthief.util.MoreSuppliers;
@@ -29,7 +27,7 @@ class MoreSuppliersConcurrentTest {
         LongAdder succ = new LongAdder();
         LongAdder failed = new LongAdder();
         new Thread(() -> {
-            while(!term.get()) {
+            while (!term.get()) {
                 try {
                     supplier.tryClose(it -> {
                         MILLISECONDS.sleep(1);
@@ -70,7 +68,7 @@ class MoreSuppliersConcurrentTest {
         LongAdder succ = new LongAdder();
         LongAdder failed = new LongAdder();
         new Thread(() -> {
-            while(!term.get()) {
+            while (!term.get()) {
                 try {
                     supplier.tryClose(it -> {
                         MILLISECONDS.sleep(1);

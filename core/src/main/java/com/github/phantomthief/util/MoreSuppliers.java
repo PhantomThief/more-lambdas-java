@@ -302,7 +302,7 @@ public final class MoreSuppliers {
         }
 
         public String toString() {
-            if (initialized) {
+            if (initialized && !closing) {
                 return "MoreSuppliers.lazy(" + get() + ")";
             } else {
                 return "MoreSuppliers.lazy(" + this.delegate + ")";
@@ -334,6 +334,8 @@ public final class MoreSuppliers {
          * 当前是否已经获取过提供器的值
          */
         private transient volatile boolean initialized;
+        // TODO initialized 和 closing 可以复用同一个 int，按位检查状态，提高性能
+        private transient volatile boolean closing;
 
         /**
          * 当前缓存的提供器的值
@@ -358,7 +360,7 @@ public final class MoreSuppliers {
          * @return 提供器的值
          */
         public T get() throws X {
-            if (!(this.initialized)) {
+            if (!(this.initialized) || closing) {
                 synchronized (this) {
                     if (!(this.initialized)) {
                         T t = this.delegate.get();
@@ -430,17 +432,24 @@ public final class MoreSuppliers {
         public <X2 extends Throwable> void tryClose(ThrowableConsumer<T, X2> close) throws X2 {
             synchronized (this) {
                 if (initialized) {
-                    close.accept(value);
                     if (resetAfterClose) {
-                        this.value = null;
-                        initialized = false;
+                        closing = true;
+                    }
+                    try {
+                        close.accept(value);
+                        if (resetAfterClose) {
+                            this.value = null;
+                            initialized = false;
+                        }
+                    } finally {
+                        closing = false;
                     }
                 }
             }
         }
 
         public String toString() {
-            if (initialized) {
+            if (initialized && !closing) {
                 try {
                     return "MoreSuppliers.lazy(" + get() + ")";
                 } catch (Throwable x) {

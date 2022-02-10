@@ -13,7 +13,6 @@ import java.time.Duration;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,6 @@ class MoreFuturesDynamicTest {
 
     private static final Logger logger = LoggerFactory.getLogger(MoreFuturesDynamicTest.class);
 
-    @Disabled
     @Test
     void test() {
         ScheduledExecutorService scheduled = newSingleThreadScheduledExecutor();

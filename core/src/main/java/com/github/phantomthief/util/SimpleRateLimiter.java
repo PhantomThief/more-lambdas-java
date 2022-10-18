@@ -64,6 +64,7 @@ public class SimpleRateLimiter {
         long thisPeriod = (long) (SECONDS.toNanos(1) / permitsPerSecond);
         checkState(thisPeriod > 0);
         this.allowTimesPerNanos = thisPeriod;
+        this.lastAcquiredNanos = 0;
     }
 
     /**
@@ -75,6 +76,7 @@ public class SimpleRateLimiter {
         long thisPeriod = checkNotNull(periodPerTimes).toNanos();
         checkState(thisPeriod > 0);
         this.allowTimesPerNanos = thisPeriod;
+        this.lastAcquiredNanos = 0;
     }
 
     long getAllowTimesPerNanos() {

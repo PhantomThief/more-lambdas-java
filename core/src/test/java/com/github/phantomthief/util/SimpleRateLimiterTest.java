@@ -8,6 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Duration;
+
 import org.junit.jupiter.api.Test;
 
 /**
@@ -72,5 +74,47 @@ class SimpleRateLimiterTest {
         assertTrue(limiter.tryAcquire());
         assertFalse(limiter.tryAcquire());
         assertEquals(HOURS.toNanos(1), limiter.getAllowTimesPerNanos());
+    }
+
+    @Test
+    void test5() {
+        SimpleRateLimiter limiter = SimpleRateLimiter.create(1.0D);
+        new Thread(() -> {
+            sleepUninterruptibly(4, SECONDS);
+            limiter.setRate(0.5);
+        }).start();
+        int j = 0;
+        for (int i = 0; i < 100; i++) {
+            if (i % 10 == 0) {
+                sleepUninterruptibly(1, SECONDS);
+            }
+            if (limiter.tryAcquire()) {
+                j++;
+            }
+        }
+        assertEquals(7, j);  // 4 + 6/2
+        assertEquals(93, limiter.getSkipCountAndClear());
+        assertEquals(0, limiter.getSkipCountAndClear());
+    }
+
+    @Test
+    void test6() {
+        SimpleRateLimiter limiter = SimpleRateLimiter.create(1.0D);
+        new Thread(() -> {
+            sleepUninterruptibly(4, SECONDS);
+            limiter.setPeriod(Duration.ofSeconds(2));
+        }).start();
+        int j = 0;
+        for (int i = 0; i < 100; i++) {
+            if (i % 10 == 0) {
+                sleepUninterruptibly(1, SECONDS);
+            }
+            if (limiter.tryAcquire()) {
+                j++;
+            }
+        }
+        assertEquals(7, j);  // 4 + 6/2
+        assertEquals(93, limiter.getSkipCountAndClear());
+        assertEquals(0, limiter.getSkipCountAndClear());
     }
 }

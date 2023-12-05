@@ -15,7 +15,7 @@
         <jsr305.version>3.0.2</jsr305.version>
 
         <junit.version>5.7.2</junit.version>
-        <logback-classic.version>1.2.3</logback-classic.version>
+        <logback-classic.version>1.2.13</logback-classic.version>
         <jmh.version>1.34</jmh.version>
 
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
